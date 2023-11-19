@@ -7,17 +7,53 @@
     <style>
         html {
             font-family: sans-serif;
+            background: #e6e7e8;
         }
 
         body {
             margin: 0 auto;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 5px 5px 5px lightgrey;
+            position: relative;
+            border-radius: 0.4em;
+        }
+
+        #theGrid{
+            background: #e6e7e8;
+            color: white;
+            text-align: center;
+        }
+
+        #theGrid td:first-of-type {
+            background: #5986D9;
+            color: white;
+            font-weight: bold;
+            padding-left: 3px;
+            padding-right: 3px;
+        }
+
+        #theGrid td:hover {
+            box-shadow: 0px 0px 3px black;
+            background: rgba(255, 255, 255, 0.418);
         }
 
         #theGrid,
         #theGrid td,
         #theGrid tr,
         #theGrid th {
-            border: 1px solid black;
+            border: 1px solid #cfcfcf;
             border-collapse: collapse;
             font-family: monospace;
         }
@@ -35,7 +71,11 @@
 
         #controls,
         #gridContainer {
-            padding: 10px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            min-width: 450px;
         }
 
         button {
@@ -43,18 +83,43 @@
         }
 
         .currentStep {
-            background: turquoise;
+            background: #b9b9b9;
         }
 
-        .activeCell {
-            background: royalblue;
+        #theGrid td.activeCell {
+            background: #B96AD2;
+        }
+
+        .skeuButton {
+            background: white;
+            color: black;
+            box-shadow: 2px 2px 4px #80808080, -2px -2px 4px #ffffff6b;
+            border-radius: 0.4em;
+            border: 1px solid rgb(237, 237, 237);
+            transition: border 0.5s;
+            cursor: pointer;
+            user-select: none;
+            padding: 7px;
+        }
+
+        .skeuButton:active {
+            color: darkblue;
+            box-shadow: inset 2px 2px 4px #80808080, inset -2px -2px 4px #ffffff6b;
+        }
+
+        .skeuButton:disabled {
+            color: lightgray;
+        }
+
+        .skeuButton:hover {
+            border: 1px solid rgb(217, 217, 217);
         }
     </style>
 </head>
 
 <body>
 
-    <div id="controls">
+    <div id="controls" class="card">
         <table>
             <tr>
                 <td>Steps</td>
@@ -67,14 +132,15 @@
         </table>
 
         <div>
-            <button disabled onclick="initAudioContext()"">Start</button>
-            <button disabled>Stop</button>
-            <button onclick="initAudioContext(); advanceStep()">Step</button>
-            <button onclick="loadTrack(tracks.stillAlive)">Load</button>
+            <button class="skeuButton" disabled onclick="initAudioContext()"">Start</button>
+            <button class=" skeuButton" disabled>Stop</button>
+            <button class="skeuButton" onclick=" initAudioContext(); advanceStep()">Step</button>
+            <button class="skeuButton" onclick="loadTrack(tracks.stillAlive)">Load</button>
+            <button class="skeuButton" onclick="clearNotes()">Clear</button>
         </div>
     </div>
 
-    <div id="gridContainer">
+    <div id="gridContainer" class="card">
         <table id="theGrid"></table>
     </div>
 
@@ -151,6 +217,7 @@
                 cell.onclick = function () {
                     this.classList.toggle("activeCell")
                     if (this.classList.contains("activeCell")) {
+                        initAudioContext();
                         playNoteByName(this.parentElement.cells[0].innerText)
                     }
                 }
@@ -186,6 +253,7 @@
         `
         Gets frequency in Hz for a note given a name, e.g. A4 or C♯3
         Will let you get away with using # instead of ♯
+        Breaks above G#9 because of the assumption that the octave is always a single digit
         `
         var note = noteName.slice(0, noteName.length - 1).replace("#", "♯")
         var octave = parseInt(noteName.slice(noteName.length - 1))
@@ -233,24 +301,26 @@
         }
     }
 
-    function loadTrack(trackData){
+    function loadTrack(trackData) {
         // make sure we have enough steps
         var maxSteps = 0
-        for (var i=0; i<trackData.length; i++){
+        for (var i = 0; i < trackData.length; i++) {
             maxSteps = trackData[i][1] > maxSteps ? trackData[i][1] : maxSteps
         }
         maxSteps++
-        if (stepCount < maxSteps){
+        if (stepCount < maxSteps) {
             stepCount = maxSteps
             stepChange(stepCount)
         }
 
+        clearNotes()
+
         // load the data
-        for (var i=0; i<trackData.length; i++){
+        for (var i = 0; i < trackData.length; i++) {
             var note = trackData[i][0]
             var step = trackData[i][1]
             var rowElement = document.querySelector(`[data-note=${note}]`).parentElement
-            var cell = rowElement.cells[step+1]
+            var cell = rowElement.cells[step + 1]
             cell.classList.add("activeCell")
         }
     }
@@ -259,6 +329,12 @@
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
+    }
+
+    function clearNotes(){
+        document.querySelectorAll(".activeCell").forEach(element => {
+            element.classList.remove("activeCell")
+        });
     }
 
     function init() {
