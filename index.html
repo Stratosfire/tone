@@ -30,7 +30,7 @@
             border-radius: 0.4em;
         }
 
-        #theGrid{
+        #theGrid {
             background: #e6e7e8;
             color: white;
             text-align: center;
@@ -137,6 +137,7 @@
             <button class="skeuButton" onclick=" initAudioContext(); advanceStep()">Step</button>
             <button class="skeuButton" onclick="loadTrack(tracks.stillAlive)">Load</button>
             <button class="skeuButton" onclick="clearNotes()">Clear</button>
+            <button class="skeuButton" onclick="highlightStep(-1)">&lt;&lt;</button>
         </div>
     </div>
 
@@ -188,6 +189,8 @@
     }
 
     function highlightStep(step) {
+        currentStep = step
+
         // unhighlight all steps
         var colClass = document.querySelectorAll(".currentStep")
         colClass.forEach(element => {
@@ -244,7 +247,7 @@
         var oscillator = audioCtx.createOscillator();
         oscillator.type = "sine";
         oscillator.frequency.setValueAtTime(noteFrequency, audioCtx.currentTime); // value in hertz
-        oscillator.connect(audioCtx.destination);
+        oscillator.connect(mainGainNode);
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + stepDuration);
     }
@@ -266,24 +269,25 @@
     }
 
     function playChordArray(chordArray) {
-        // chordArray.map(x => setTimeout(playNoteByName, 0, x))
+        volume = 1 / (chordArray.length * 2)
+        chordArray.map(x => setTimeout(playNoteByName, 0, x))
         // new context for every note played
         // this is silly you should just make one for every row
-        var ctxArray = []
-        var oscillatorArray = []
-        for (var i = 0; i < chordArray.length; i++) {
-            ctxArray.push(new (window.AudioContext || window.webkitAudioContext)())
-            oscillatorArray.push(ctxArray[i].createOscillator())
-            oscillatorArray[i].type = "sine"
-            oscillatorArray[i].frequency.setValueAtTime(getFrequencyFromNoteName(chordArray[i]), ctxArray[i].currentTime);
-            oscillatorArray[i].connect(ctxArray[i].destination)
-        }
-        for (var i = 0; i < oscillatorArray.length; i++) {
-            oscillatorArray[i].start()
-        }
-        for (var i = 0; i < oscillatorArray.length; i++) {
-            oscillatorArray[i].stop(ctxArray[i].currentTime + stepDuration)
-        }
+        // var ctxArray = []
+        // var oscillatorArray = []
+        // for (var i = 0; i < chordArray.length; i++) {
+        //     ctxArray.push(new (window.AudioContext || window.webkitAudioContext)())
+        //     oscillatorArray.push(ctxArray[i].createOscillator())
+        //     oscillatorArray[i].type = "sine"
+        //     oscillatorArray[i].frequency.setValueAtTime(getFrequencyFromNoteName(chordArray[i]), ctxArray[i].currentTime);
+        //     oscillatorArray[i].connect(ctxArray[i].destination)
+        // }
+        // for (var i = 0; i < oscillatorArray.length; i++) {
+        //     oscillatorArray[i].start()
+        // }
+        // for (var i = 0; i < oscillatorArray.length; i++) {
+        //     oscillatorArray[i].stop(ctxArray[i].currentTime + stepDuration)
+        // }
     }
 
     function getTheScore(asString) {
@@ -328,10 +332,13 @@
     function initAudioContext() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            mainGainNode = audioCtx.createGain();
+            mainGainNode.connect(audioCtx.destination);
+            mainGainNode.gain.value = volume;
         }
     }
 
-    function clearNotes(){
+    function clearNotes() {
         document.querySelectorAll(".activeCell").forEach(element => {
             element.classList.remove("activeCell")
         });
@@ -349,9 +356,12 @@
     var stepDuration = 0.5
     var chromaticScale = ["A", "A♯", "B", "C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯"]
     var audioCtx
+    var mainGainNode
+    var volume = 0.5
 
     var tracks = {
-        "stillAlive": [["F4", 0], ["F4", 6], ["E4", 1], ["E4", 4], ["E4", 7], ["E4", 10], ["D4", 2], ["D4", 3], ["D4", 8], ["D4", 9], ["D4", 12], ["C4", 11], ["G3", 5], ["G3", 13]]
+        "stillAlive": [["F4", 0], ["F4", 6], ["F4", 17], ["E4", 1], ["E4", 4], ["E4", 7], ["E4", 10], ["E4", 16], ["E4", 24], ["D4", 2], ["D4", 3], ["D4", 8], ["D4", 9], ["D4", 12], ["D4", 15], ["D4", 18], ["D4", 21], ["C4", 11], ["C4", 20], ["B4", 19], ["G3", 5], ["G3", 13], ["G3", 14], ["G3", 22], ["G3", 23]],
+        "blue": [["F♯4", 12], ["F♯4", 13], ["F♯4", 14], ["F♯4", 15], ["E4", 0], ["E4", 1], ["E4", 2], ["E4", 3], ["E4", 4], ["E4", 5], ["E4", 6], ["E4", 7], ["E4", 8], ["E4", 9], ["E4", 10], ["E4", 11], ["D♯4", 12], ["D♯4", 13], ["D♯4", 14], ["D♯4", 15], ["C♯4", 4], ["C♯4", 5], ["C♯4", 6], ["C♯4", 7], ["B4", 0], ["B4", 1], ["B4", 2], ["B4", 3], ["B4", 8], ["B4", 9], ["B4", 10], ["B4", 11], ["A4", 12], ["A4", 13], ["A4", 14], ["A4", 15], ["G♯3", 0], ["G♯3", 1], ["G♯3", 2], ["G♯3", 3], ["G♯3", 8], ["G♯3", 9], ["G♯3", 10], ["G♯3", 11], ["G3", 4], ["G3", 5], ["G3", 6], ["G3", 7], ["F♯3", 12], ["F♯3", 13], ["F♯3", 14], ["F♯3", 15], ["E3", 4], ["E3", 5], ["E3", 6], ["E3", 7], ["D3", 0], ["D3", 1], ["D3", 2], ["D3", 3], ["D3", 8], ["D3", 9], ["D3", 10], ["D3", 11], ["B3", 0], ["B3", 1], ["B3", 2], ["B3", 3], ["B3", 8], ["B3", 9], ["B3", 10], ["B3", 11], ["B3", 12], ["B3", 13], ["B3", 14], ["B3", 15], ["A3", 4], ["A3", 5], ["A3", 6], ["A3", 7]]
     }
 
     // init
