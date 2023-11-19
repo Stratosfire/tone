@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Tone</title>
+    <style>
+        html {
+            font-family: sans-serif;
+        }
+
+        body {
+            margin: 0 auto;
+        }
+
+        #theGrid,
+        #theGrid td,
+        #theGrid tr,
+        #theGrid th {
+            border: 1px solid black;
+            border-collapse: collapse;
+            font-family: monospace;
+        }
+
+        #theGrid td {
+            height: 25px;
+            width: 25px;
+        }
+
+        #theGrid th {
+            height: 0.5em;
+            width: 1em;
+            background: lightgray;
+        }
+
+        #controls,
+        #gridContainer {
+            padding: 10px;
+        }
+
+        button {
+            margin: 3px;
+        }
+
+        .currentStep {
+            background: turquoise;
+        }
+
+        .activeCell {
+            background: royalblue;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="controls">
+        <table>
+            <tr>
+                <td>Steps</td>
+                <td><input id="stepSpinner" type="number" onchange="stepChange(parseInt(this.value))" min="1" /></td>
+            </tr>
+            <tr>
+                <td>Step duration</td>
+                <td><input type="number" value=0.5 onchange="stepDurationChange(parseInt(this.value))" min="1" /></td>
+            </tr>
+        </table>
+
+        <div>
+            <button disabled onclick="initAudioContext()"">Start</button>
+            <button disabled>Stop</button>
+            <button onclick="initAudioContext(); advanceStep()">Step</button>
+            <button onclick="loadTrack(tracks.stillAlive)">Load</button>
+        </div>
+    </div>
+
+    <div id="gridContainer">
+        <table id="theGrid"></table>
+    </div>
+
+</body>
+<script>
+    'use strict'
+
+    function stepChange(steps) {
+        var theGrid = document.getElementById("theGrid")
+        var stepSpinner = document.getElementById("stepSpinner")
+        var currentTrack = getTheScore()
+        stepCount = steps
+        var newGridHTML = []
+        newGridHTML.push("<table><thead>")
+        newGridHTML.push("<th></th>".repeat(steps + 1))
+        newGridHTML.push("</thead><tbody>")
+        for (var i = 0; i < numberOfOctaves * 12; i++) {
+            var rowHTML = []
+            rowHTML.push("<tr>")
+            for (var j = 0; j < (steps + 1); j++) {
+                var cellHTML = ""
+                if (!j) {
+                    var note = chromaticScale[12 - ((i % 12) + 1)]
+                    var octave = startOctave + numberOfOctaves - (1 + Math.floor(i / 12))
+                    cellHTML = `<td class='step_${j - 1}' data-note="${note}${octave}">${note}${octave}</td>`
+                }
+                else {
+                    cellHTML = `<td class='step_${j - 1}'></td>`
+                }
+                rowHTML.push(cellHTML)
+            }
+            rowHTML.push("</tr>")
+            newGridHTML.push(rowHTML.join("\n"))
+        }
+        newGridHTML.push("</tbody></table>")
+        theGrid.innerHTML = newGridHTML.join("\n")
+        stepSpinner.value = steps
+
+        addOnclickToGridCells()
+        loadTrack(currentTrack)
+    }
+
+    function stepDurationChange(duration) {
+        stepDuration = duration
+    }
+
+    function highlightStep(step) {
+        // unhighlight all steps
+        var colClass = document.querySelectorAll(".currentStep")
+        colClass.forEach(element => {
+            element.classList.remove("currentStep")
+        });
+
+        // highlight step
+        var colClass = document.querySelectorAll(`.step_${step}`)
+        colClass.forEach(element => {
+            element.classList.add("currentStep")
+        });
+    }
+
+    function advanceStep() {
+        currentStep = (currentStep + 1) % stepCount
+        highlightStep(currentStep)
+        var notes = getCurrentStepActiveCellNoteArray()
+        playChordArray(notes)
+
+    }
+
+    function addOnclickToGridCells() {
+        var theGrid = document.getElementById("theGrid")
+        for (var row = 1; row < theGrid.rows.length; row++) {
+            for (var col = 1; col < theGrid.rows[row].cells.length; col++) {
+                var cell = theGrid.rows[row].cells[col]
+                cell.onclick = function () {
+                    this.classList.toggle("activeCell")
+                    if (this.classList.contains("activeCell")) {
+                        playNoteByName(this.parentElement.cells[0].innerText)
+                    }
+                }
+            }
+        }
+    }
+
+    function getCurrentStepActiveCellNoteArray() {
+        var noteElements = document.querySelectorAll(".activeCell.currentStep")
+        var noteArray = [...noteElements].map(x =>
+            x.parentElement.cells[0].innerText
+        )
+        return noteArray ? noteArray : []
+    }
+
+    function playNoteByName(noteName) {
+        `
+        Plays a note given a name, e.g. A4 or C♯3
+        Will let you get away with using # instead of ♯
+        Assumes you have an audio context called audioCtx
+        `
+        var noteFrequency = getFrequencyFromNoteName(noteName)
+
+        var oscillator = audioCtx.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(noteFrequency, audioCtx.currentTime); // value in hertz
+        oscillator.connect(audioCtx.destination);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + stepDuration);
+    }
+
+    function getFrequencyFromNoteName(noteName) {
+        `
+        Gets frequency in Hz for a note given a name, e.g. A4 or C♯3
+        Will let you get away with using # instead of ♯
+        `
+        var note = noteName.slice(0, noteName.length - 1).replace("#", "♯")
+        var octave = parseInt(noteName.slice(noteName.length - 1))
+        var noteIdx = chromaticScale.indexOf(note)
+
+        var noteValueRelativeToA4 = noteIdx + (12 * (octave - 4))
+        var noteFrequency = (2 ** (noteValueRelativeToA4 / 12)) * 440
+
+        return noteFrequency
+    }
+
+    function playChordArray(chordArray) {
+        // chordArray.map(x => setTimeout(playNoteByName, 0, x))
+        // new context for every note played
+        // this is silly you should just make one for every row
+        var ctxArray = []
+        var oscillatorArray = []
+        for (var i = 0; i < chordArray.length; i++) {
+            ctxArray.push(new (window.AudioContext || window.webkitAudioContext)())
+            oscillatorArray.push(ctxArray[i].createOscillator())
+            oscillatorArray[i].type = "sine"
+            oscillatorArray[i].frequency.setValueAtTime(getFrequencyFromNoteName(chordArray[i]), ctxArray[i].currentTime);
+            oscillatorArray[i].connect(ctxArray[i].destination)
+        }
+        for (var i = 0; i < oscillatorArray.length; i++) {
+            oscillatorArray[i].start()
+        }
+        for (var i = 0; i < oscillatorArray.length; i++) {
+            oscillatorArray[i].stop(ctxArray[i].currentTime + stepDuration)
+        }
+    }
+
+    function getTheScore(asString) {
+        var theScore = [...document.getElementById("theGrid").getElementsByClassName("activeCell")].map(x =>
+            [
+                x.parentElement.cells[0].innerText,
+                Array.from(x.parentNode.children).indexOf(x) - 1
+            ]
+        )
+        if (asString) {
+            return JSON.stringify(theScore)
+        }
+        else {
+            return theScore
+        }
+    }
+
+    function loadTrack(trackData){
+        // make sure we have enough steps
+        var maxSteps = 0
+        for (var i=0; i<trackData.length; i++){
+            maxSteps = trackData[i][1] > maxSteps ? trackData[i][1] : maxSteps
+        }
+        maxSteps++
+        if (stepCount < maxSteps){
+            stepCount = maxSteps
+            stepChange(stepCount)
+        }
+
+        // load the data
+        for (var i=0; i<trackData.length; i++){
+            var note = trackData[i][0]
+            var step = trackData[i][1]
+            var rowElement = document.querySelector(`[data-note=${note}]`).parentElement
+            var cell = rowElement.cells[step+1]
+            cell.classList.add("activeCell")
+        }
+    }
+
+    function initAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function init() {
+        stepChange(stepCount)
+    }
+
+    // globals
+    var numberOfOctaves = 2
+    var startOctave = 3
+    var stepCount = 16
+    var currentStep = -1
+    var stepDuration = 0.5
+    var chromaticScale = ["A", "A♯", "B", "C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯"]
+    var audioCtx
+
+    var tracks = {
+        "stillAlive": [["F4", 0], ["F4", 6], ["E4", 1], ["E4", 4], ["E4", 7], ["E4", 10], ["D4", 2], ["D4", 3], ["D4", 8], ["D4", 9], ["D4", 12], ["C4", 11], ["G3", 5], ["G3", 13]]
+    }
+
+    // init
+    init();
+</script>
+
+</html>
