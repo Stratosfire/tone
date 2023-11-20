@@ -144,6 +144,16 @@
         .skeuButton:hover {
             border: 1px solid rgb(217, 217, 217);
         }
+
+        #exportDiv textarea{
+            height: 100px;
+            margin: 5px;
+            width: 100%;
+            width: -moz-available;
+            width: -webkit-fill-available;
+            width: fill-available;
+            border-radius: 0.4em;
+        }
     </style>
 </head>
 
@@ -172,6 +182,8 @@
                 <!-- <button class="skeuButton" onclick="loadTrack(tracks.stillAlive)">Load</button> -->
                 <button class="skeuButton" onclick="clearNotes()">Clear</button>
                 <div id="trackSelection" style="display: inline-block"></div>
+                <button class="skeuButton" onclick="doLoad()">Load</button>
+                <button class="skeuButton" onclick="doExport()">Export</button>
             </div>
         </div>
     </div>
@@ -407,6 +419,38 @@
         }
         outhtml += "</select>"
         document.getElementById("trackSelection").innerHTML = outhtml
+    }
+
+    function doExport(){
+        if (document.getElementById("exportDiv")){
+            document.getElementById("exportText").value = getTheScore(1)
+        }
+        else{
+            var node = document.createElement("div")
+            node.id = "exportDiv"
+            node.classList.add("card")
+            var textareaNode = document.createElement("textarea")
+            textareaNode.id = "exportText"
+            node.appendChild(textareaNode)
+            document.getElementById("controls").after(node)
+            doExport()
+        }
+    }
+
+    function doLoad(){
+        if (document.getElementById("exportDiv")){
+            loadTrack(JSON.parse(document.getElementById("exportText").value))
+        }
+        else{
+            var node = document.createElement("div")
+            node.id = "exportDiv"
+            node.classList.add("card")
+            var textareaNode = document.createElement("textarea")
+            textareaNode.id = "exportText"
+            textareaNode.placeholder = "Paste track data in here then click load again"
+            node.appendChild(textareaNode)
+            document.getElementById("controls").after(node)
+        }
     }
 
     function init() {
