@@ -203,12 +203,15 @@
 <script>
     'use strict'
 
-    function stepChange(steps, no_reload) {
+    function stepChange(steps, noReload) {
         var theGrid = document.getElementById("theGrid")
         var stepSpinner = document.getElementById("stepSpinner")
         var currentTrack = getTheScore()
-        stepCount = steps
         var newGridHTML = []
+
+        stepCount = steps
+        currentTrack["steps"] = steps
+        
         newGridHTML.push("<table><thead>")
         newGridHTML.push("<th>&#9660;</th>".repeat(steps + 1))
         newGridHTML.push("</thead><tbody>")
@@ -236,8 +239,8 @@
 
         addOnclickToGridCells()
         
-        if (!no_reload){
-            loadTrack(currentTrack)
+        if (!noReload){
+            loadTrack(currentTrack, true)
         }
     }
 
@@ -338,23 +341,6 @@
     function playChordArray(chordArray) {
         volume = 1 / (chordArray.length * 2)
         chordArray.map(x => setTimeout(playNoteByName, 0, x))
-        // new context for every note played
-        // this is silly you should just make one for every row
-        // var ctxArray = []
-        // var oscillatorArray = []
-        // for (var i = 0; i < chordArray.length; i++) {
-        //     ctxArray.push(new (window.AudioContext || window.webkitAudioContext)())
-        //     oscillatorArray.push(ctxArray[i].createOscillator())
-        //     oscillatorArray[i].type = "sine"
-        //     oscillatorArray[i].frequency.setValueAtTime(getFrequencyFromNoteName(chordArray[i]), ctxArray[i].currentTime);
-        //     oscillatorArray[i].connect(ctxArray[i].destination)
-        // }
-        // for (var i = 0; i < oscillatorArray.length; i++) {
-        //     oscillatorArray[i].start()
-        // }
-        // for (var i = 0; i < oscillatorArray.length; i++) {
-        //     oscillatorArray[i].stop(ctxArray[i].currentTime + stepDuration)
-        // }
     }
 
     function getTheScore(asString) {
@@ -379,7 +365,7 @@
         }
     }
 
-    function loadTrack(trackData) {
+    function loadTrack(trackData, noStepChange) {
         clearNotes()
 
         // load the data
@@ -389,6 +375,7 @@
         var waveform = trackData["waveform"]
 
         if (!notesArray){
+            console.warn("No notes in trackData")
             return
         }
 
@@ -402,8 +389,13 @@
             var note = notesArray[i][0]
             var step = notesArray[i][1]
             var rowElement = document.querySelector(`[data-note=${note}]`).parentElement
-            var cell = rowElement.cells[step + 1]
-            cell.classList.add("activeCell")
+            try{
+                var cell = rowElement.cells[step + 1]
+                cell.classList.add("activeCell")
+            }
+            catch{
+                console.warn(`Cannot place ${note} at step ${step}, truncating score`)
+            }
         }
 
         // step duration
@@ -505,6 +497,7 @@
     var volume = 0.5
     var autoStepIntervalIdArray = []
     var waveform = "sine"
+    var tempState
 
     var tracks = {
         "stillAlive": {
