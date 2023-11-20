@@ -177,6 +177,13 @@
                 <button class="skeuButton" onclick="stopAutoplay()">Stop</button>
                 <button class="skeuButton" onclick="initAudioContext(); advanceStep()">Step</button>
                 <button class="skeuButton" onclick="highlightStep(-1)">&lt;&lt;</button>
+                <select id="waveformSelection" onchange="changeWaveform(this.value)">
+                    <option disabled="" selected="">Waveform</option>
+                    <option value="sine">Sine</option>
+                    <option value="square">Square</option>
+                    <option value="sawtooth">Sawtooth</option>
+                    <option value="triangle">Triangle</option>
+                </select>
             </div>
             <div>
                 <!-- <button class="skeuButton" onclick="loadTrack(tracks.stillAlive)">Load</button> -->
@@ -300,7 +307,7 @@
         var noteFrequency = getFrequencyFromNoteName(noteName)
 
         var oscillator = audioCtx.createOscillator();
-        oscillator.type = "sine";
+        oscillator.type = waveform ? waveform : "sine";
         oscillator.frequency.setValueAtTime(noteFrequency, audioCtx.currentTime); // value in hertz
         oscillator.connect(mainGainNode);
         oscillator.start();
@@ -453,6 +460,10 @@
         }
     }
 
+    function changeWaveform(waveformSetting){
+        waveform = waveformSetting
+    }
+
     function init() {
         stepChange(stepCount);
         trackSelectorGenerator();
@@ -469,6 +480,7 @@
     var mainGainNode
     var volume = 0.5
     var autoStepIntervalIdArray = []
+    var waveform = "sine"
 
     var tracks = {
         "stillAlive": [["F4", 0], ["F4", 6], ["F4", 17], ["E4", 1], ["E4", 4], ["E4", 7], ["E4", 10], ["E4", 16], ["E4", 24], ["D4", 2], ["D4", 3], ["D4", 8], ["D4", 9], ["D4", 12], ["D4", 15], ["D4", 18], ["D4", 21], ["C4", 11], ["C4", 20], ["B4", 19], ["G3", 5], ["G3", 13], ["G3", 14], ["G3", 22], ["G3", 23]],
@@ -477,7 +489,8 @@
         "sayonara": [["D♯4",4],["D♯4",6],["C♯4",0],["C♯4",2],["C♯4",8],["C♯4",11],["B4",10],["B4",20],["B4",26],["A♯4",12],["A♯4",16],["A♯4",18],["A♯4",21],["A♯4",24],["A♯4",27],["G♯3",15],["G♯3",22],["G♯3",28],["F♯3",1],["F♯3",3],["F♯3",5],["F♯3",7],["F♯3",9],["F♯3",14],["F♯3",17],["F♯3",19],["F♯3",23],["F♯3",30],["F♯3",32]],
         "centre": [["B4",3],["A4",5],["G♯3",7],["G♯3",16],["G♯3",22],["F♯3",8],["F♯3",18],["E3",0],["E3",2],["E3",21],["D♯3",9],["D♯3",13],["D♯3",15],["D♯3",20],["B3",1],["B3",14]],
         "no_printer": [["D4",8],["C♯4",9],["B4",2],["B4",6],["B4",10],["A4",0],["A4",3],["A4",7],["A4",11],["A4",16],["A4",18],["A4",20],["A4",22],["A4",24],["A4",26],["A4",28],["A4",30],["A4",35],["A4",40],["A4",42],["A4",44],["A4",48],["A4",50],["A4",52],["A4",54],["A4",56],["A4",58],["A4",60],["A4",62],["A4",67],["A4",72],["A4",74],["A4",76],["A4",105],["A4",107],["G♯3",106],["G3",12],["G3",32],["G3",34],["G3",36],["G3",64],["G3",66],["G3",68],["G3",98],["G3",100],["G3",102],["G3",104],["F♯3",13],["F♯3",37],["F♯3",69],["F♯3",90],["F♯3",92],["F♯3",94],["F♯3",96],["E3",14],["E3",31],["E3",33],["E3",38],["E3",63],["E3",65],["E3",70],["E3",82],["E3",84],["E3",86],["E3",88],["E3",97],["E3",101],["E3",103],["D3",15],["D3",17],["D3",19],["D3",21],["D3",23],["D3",25],["D3",27],["D3",29],["D3",39],["D3",41],["D3",43],["D3",45],["D3",47],["D3",49],["D3",51],["D3",53],["D3",55],["D3",57],["D3",59],["D3",61],["D3",71],["D3",73],["D3",75],["D3",77],["D3",89],["D3",93],["C♯3",46],["C♯3",81],["C♯3",85],["C♯3",99],["B3",79],["A3",78],["A3",80],["A3",83],["A3",91],["A3",95]],
-        "two_thousand": [["E4",15],["D4",16],["B4",13],["B4",17],["B4",23],["A4",19],["A4",24],["A4",27],["G3",1],["G3",8],["G3",12],["G3",18],["G3",26],["G3",28],["F♯3",2],["F♯3",9],["E3",0],["E3",4],["E3",7],["E3",11],["E3",20],["E3",22],["E3",30],["D3",3],["D3",25],["D3",29],["B3",5],["B3",10]]
+        "two_thousand": [["E4",15],["D4",16],["B4",13],["B4",17],["B4",23],["A4",19],["A4",24],["A4",27],["G3",1],["G3",8],["G3",12],["G3",18],["G3",26],["G3",28],["F♯3",2],["F♯3",9],["E3",0],["E3",4],["E3",7],["E3",11],["E3",20],["E3",22],["E3",30],["D3",3],["D3",25],["D3",29],["B3",5],["B3",10]],
+        "no_strangers": [["C4",11],["A♯4",12],["A4",10],["A4",13],["G3",3],["G3",7],["G3",17],["G3",21],["F3",0],["F3",10],["F3",14],["F3",23],["E3",3],["E3",7],["E3",17],["E3",21],["D3",0],["D3",10],["D3",14],["D3",23],["C3",3],["C3",5],["C3",7],["C3",17],["C3",19],["C3",21],["A♯3",0],["A♯3",14],["A♯3",23]]
     }
 
     // init
