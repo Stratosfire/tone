@@ -31,6 +31,31 @@
             border-radius: 0.4em;
         }
 
+        .card_hidden {
+            height: 5px !important;
+            overflow-y: hidden;
+        }
+
+        .card_hide_toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 1em;
+            height: 1em;
+            margin: 3px;
+            background: lightgray;
+            border-radius: 25% 25% 25% 100%;
+            line-height: 1em;
+        }
+
+        .card_hidden>div {
+            filter: opacity(0.1);
+        }
+
+        .card_hidden>.card_hide_toggle {
+            background: grey;
+        }
+
         #theGrid {
             background: #e6e7e8;
             color: white;
@@ -45,6 +70,7 @@
             padding-left: 3px;
             padding-right: 3px;
             cursor: default;
+            border-radius: unset;
         }
 
         #theGrid td:first-of-type:hover {
@@ -70,6 +96,7 @@
             height: 25px;
             width: 25px;
             cursor: pointer;
+            border-radius: 3px;
         }
 
         #theGrid th {
@@ -199,6 +226,21 @@
         <table id="theGrid"></table>
     </div>
 
+    <div id="postscript" class="card card_hidden">
+        <span class='card_hide_toggle' onclick='hideCard(this)'></span>
+        <p>This bit is experimental and likely to break everything</p>
+        <table>
+            <tr>
+                <td>Number of octaves</td>
+                <td><input id="octaveSpinner" type="number" value="2" step="1" min="2" onchange="octaveChange(parseFloat(this.value))" /></td>
+            </tr>
+            <tr>
+                <td>Start octave</td>
+                <td><input id="startOctaveSpinner" type="number" value="3" step="1" min="1" onchange="startOctaveChange(parseFloat(this.value))" /></td>
+            </tr>
+        </table>
+    </div>
+
 </body>
 <script>
     'use strict'
@@ -211,7 +253,7 @@
 
         stepCount = steps
         currentTrack["steps"] = steps
-        
+
         newGridHTML.push("<table><thead>")
         newGridHTML.push("<th>&#9660;</th>".repeat(steps + 1))
         newGridHTML.push("</thead><tbody>")
@@ -238,15 +280,15 @@
         stepSpinner.value = steps
 
         addOnclickToGridCells()
-        
-        if (!noReload){
+
+        if (!noReload) {
             loadTrack(currentTrack, true)
         }
     }
 
     function stepDurationChange(duration) {
         stepDuration = duration
-        if (autoStepIntervalIdArray.length){
+        if (autoStepIntervalIdArray.length) {
             startAutoplay()
         }
     }
@@ -345,7 +387,7 @@
 
     function getTheScore(asString) {
         var theScore = {}
-        
+
         theScore["notes"] = [...document.getElementById("theGrid").getElementsByClassName("activeCell")].map(x =>
             [
                 x.parentElement.cells[0].innerText,
@@ -356,6 +398,8 @@
         theScore["steps"] = stepCount
         theScore["duration"] = stepDuration
         theScore["waveform"] = waveform
+        theScore["octaves"] = numberOfOctaves
+        theScore["startOctave"] = startOctave
 
         if (asString) {
             return JSON.stringify(theScore)
@@ -373,11 +417,19 @@
         var steps = trackData["steps"]
         var duration = trackData["duration"]
         var waveform = trackData["waveform"]
+        var octaves = Object.keys(trackData).includes("octaves") ? trackData["octaves"] : 2
+        var octaveStart = Object.keys(trackData).includes("startOctave") ? trackData["startOctave"] : 3
 
-        if (!notesArray){
+        if (!notesArray) {
             console.warn("No notes in trackData")
             return
         }
+
+        // octaves
+        document.getElementById("octaveSpinner").value = octaves
+        document.getElementById("startOctaveSpinner").value = octaveStart
+        numberOfOctaves = octaves
+        startOctave = octaveStart
 
         // steps
         document.getElementById("stepSpinner").value = steps
@@ -389,11 +441,11 @@
             var note = notesArray[i][0]
             var step = notesArray[i][1]
             var rowElement = document.querySelector(`[data-note=${note}]`).parentElement
-            try{
+            try {
                 var cell = rowElement.cells[step + 1]
                 cell.classList.add("activeCell")
             }
-            catch{
+            catch {
                 console.warn(`Cannot place ${note} at step ${step}, truncating score`)
             }
         }
@@ -478,6 +530,24 @@
 
     function changeWaveform(waveformSetting) {
         waveform = waveformSetting
+    }
+
+    function reloadTrack() {
+        loadTrack(getTheScore())
+    }
+
+    function octaveChange(octave) {
+        numberOfOctaves = octave
+        reloadTrack()
+    }
+
+    function startOctaveChange(octave) {
+        startOctave = octave
+        reloadTrack()
+    }
+
+    function hideCard(card) {
+        card.parentElement.classList.toggle("card_hidden")
     }
 
     function init() {
