@@ -125,6 +125,11 @@
             min-width: 450px;
         }
 
+        #gridContainer{
+            overflow-x: scroll;
+            align-items: stretch;
+        }
+
         button {
             margin: 3px;
         }
@@ -588,6 +593,7 @@
     function init() {
         stepChange(stepCount);
         trackSelectorGenerator();
+        window.onbeforeunload = function() { return "Your work will be lost."; };
     }
 
     // globals
