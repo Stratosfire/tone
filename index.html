@@ -258,6 +258,10 @@
                 <td>Start octave</td>
                 <td><input id="startOctaveSpinner" type="number" value="3" step="1" min="1" onchange="startOctaveChange(parseFloat(this.value))" /></td>
             </tr>
+            <tr>
+                <td>Bar length</td>
+                <td><input id="barLengthSpinner" type="number" value="8" step="1" min="2" onchange="doBarShading(parseInt(this.value))"></input></td>
+            </tr>
         </table>
     </div>
 
@@ -598,10 +602,28 @@
         highlightStep(currentStep)
     }
 
+    function doBarShading(barLength){
+        var rule = `
+            #theGrid td:nth-child(${barLength}n + 1){
+                border-right: 1px solid royalblue !important;
+            }
+        `
+        if (!document.getElementById("barshadestyle")){
+            var ruleElm = document.createElement("style")
+            ruleElm.id = "barshadestyle"
+            document.body.append(ruleElm)
+        }
+        else{
+            var ruleElm = document.getElementById("barshadestyle")
+        }
+
+        ruleElm.innerText = rule
+    }
+
     function init() {
         stepChange(stepCount);
         trackSelectorGenerator();
-        window.onbeforeunload = function() { return "Your work will be lost."; };
+        // window.onbeforeunload = function() { return "Your work will be lost."; };
     }
 
     // globals
