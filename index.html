@@ -223,6 +223,9 @@
                 <button class="skeuButton" onclick="doLoad()">Load</button>
                 <button class="skeuButton" onclick="doExport()">Export</button>
             </div>
+            <div>
+                <button class="skeuButton" onclick="insertColAtCurrentPos()">Insert Column</button>
+            </div>
         </div>
     </div>
 
@@ -556,6 +559,30 @@
 
     function hideCard(card) {
         card.parentElement.classList.toggle("card_hidden")
+    }
+
+    function insertColAtCurrentPos(){
+        var currentScore = getTheScore()
+        var newScore = currentScore
+        var currentScoreNotesArray = currentScore["notes"]
+        var newScoreNotesArray = []
+        
+        for (var i=0; i<currentScoreNotesArray.length; i++){
+            var note = currentScoreNotesArray[i][0]
+            var pos = currentScoreNotesArray[i][1]
+            
+            if (pos > currentStep){
+                pos++
+            }
+
+            newScoreNotesArray.push([note, pos])
+        }
+        
+        newScore["notes"] = newScoreNotesArray
+        newScore["steps"] = newScore["steps"] + 1
+
+        loadTrack(newScore)
+        highlightStep(currentStep)
     }
 
     function init() {
