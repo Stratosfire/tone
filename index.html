@@ -250,6 +250,7 @@
             </div>
             <div>
                 <button class="skeuButton" onclick="insertColAtCurrentPos()">Insert Column</button>
+                <button class="skeuButton" onclick="wideMode()">Wide mode</button>
             </div>
         </div>
     </div>
@@ -691,10 +692,36 @@
         reader.readAsDataURL(file);
     }
 
+    function wideMode() {
+        var controlsDiv = document.getElementById("controls")
+        controlsDiv.style.justifyContent = "space-evenly"
+        controlsDiv.style.flexDirection = "row"
+        controlsDiv.style.alignItems = "center"
+        document.body.style.maxWidth = 'calc(100vw - 30px)'
+        window.history.replaceState(null, null, "?wide=1");
+    }
+
+    function read_url_params_and_apply() {
+        var url_string = window.location.href
+        var url = new URL(url_string)
+        try{
+            var wide = parseInt(url.searchParams.get("wide"))
+            if (wide){
+                console.log(wide)
+                wideMode()
+            }
+        }
+        catch{
+            console.warn("Not impressed with your invalid URL parameters")
+        }
+    }
+
+
     function init() {
         stepChange(stepCount);
         trackSelectorGenerator();
-        window.onbeforeunload = function() { return "Your work will be lost."; };
+        window.onbeforeunload = function () { return "Your work will be lost."; };
+        read_url_params_and_apply()
     }
 
     // globals
