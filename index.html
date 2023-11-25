@@ -319,6 +319,7 @@
 
     function highlightStep(step) {
         currentStep = step
+        document.title = `Step ${step+1}/${theGrid.rows[0].cells.length - 1}`
 
         // unhighlight all steps
         var colClass = document.querySelectorAll(".currentStep")
