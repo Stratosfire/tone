@@ -694,11 +694,23 @@
 
     function wideMode() {
         var controlsDiv = document.getElementById("controls")
-        controlsDiv.style.justifyContent = "space-evenly"
-        controlsDiv.style.flexDirection = "row"
-        controlsDiv.style.alignItems = "center"
-        document.body.style.maxWidth = 'calc(100vw - 30px)'
-        window.history.replaceState(null, null, "?wide=1");
+
+        if (!isWideModeEnabled){
+            controlsDiv.style.justifyContent = "space-evenly"
+            controlsDiv.style.flexDirection = "row"
+            controlsDiv.style.alignItems = "center"
+            document.body.style.maxWidth = 'calc(100vw - 30px)'
+            window.history.replaceState(null, null, "?wide=1");
+            isWideModeEnabled = 1
+        }
+        else {
+            controlsDiv.style.justifyContent = "unset"
+            controlsDiv.style.flexDirection = "column"
+            controlsDiv.style.alignItems = "center"
+            document.body.style.maxWidth = '500px'
+            window.history.replaceState(null, null, "?wide=0");
+            isWideModeEnabled = 0
+        }
     }
 
     function read_url_params_and_apply() {
@@ -737,6 +749,7 @@
     var autoStepIntervalIdArray = []
     var waveform = "sine"
     var tempState
+    var isWideModeEnabled = 0
 
     var tracks = {
         "stillAlive": {
