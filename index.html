@@ -112,15 +112,15 @@
             background: grey;
         }
 
-        #theGrid tr:hover{
+        #theGrid tr:hover {
             background: rgb(181, 181, 181);
         }
 
-        #theGrid tr:nth-child(12n) td{
+        #theGrid tr:nth-child(12n) td {
             border-bottom: 1px solid #425d90 !important;
         }
 
-        #theGrid tr:last-child td{
+        #theGrid tr:last-child td {
             border-bottom: unset !important;
         }
 
@@ -133,7 +133,7 @@
             min-width: 450px;
         }
 
-        #gridContainer{
+        #gridContainer {
             overflow-x: scroll;
             align-items: stretch;
         }
@@ -197,6 +197,10 @@
             width: -webkit-fill-available;
             width: fill-available;
             border-radius: 0.4em;
+        }
+
+        #exportDiv {
+            text-align: right;
         }
     </style>
 </head>
@@ -319,7 +323,7 @@
 
     function highlightStep(step) {
         currentStep = step
-        document.title = `Step ${step+1}/${theGrid.rows[0].cells.length - 1}`
+        document.title = `Step ${step + 1}/${theGrid.rows[0].cells.length - 1}`
 
         // unhighlight all steps
         var colClass = document.querySelectorAll(".currentStep")
@@ -537,8 +541,28 @@
             textareaNode.id = "exportText"
             node.appendChild(textareaNode)
             document.getElementById("controls").after(node)
+            var button = document.createElement("button")
+            button.onclick = function () {
+                download("track.json", textareaNode.value)
+            }
+            button.classList.add("skeuButton")
+            button.textContent = "Download"
+            node.appendChild(button)
             doExport()
         }
+    }
+
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
     }
 
     function doLoad() {
@@ -579,23 +603,23 @@
         card.parentElement.classList.toggle("card_hidden")
     }
 
-    function insertColAtCurrentPos(){
+    function insertColAtCurrentPos() {
         var currentScore = getTheScore()
         var newScore = currentScore
         var currentScoreNotesArray = currentScore["notes"]
         var newScoreNotesArray = []
-        
-        for (var i=0; i<currentScoreNotesArray.length; i++){
+
+        for (var i = 0; i < currentScoreNotesArray.length; i++) {
             var note = currentScoreNotesArray[i][0]
             var pos = currentScoreNotesArray[i][1]
-            
-            if (pos > currentStep){
+
+            if (pos > currentStep) {
                 pos++
             }
 
             newScoreNotesArray.push([note, pos])
         }
-        
+
         newScore["notes"] = newScoreNotesArray
         newScore["steps"] = newScore["steps"] + 1
 
@@ -603,18 +627,18 @@
         highlightStep(currentStep)
     }
 
-    function doBarShading(barLength){
+    function doBarShading(barLength) {
         var rule = `
             #theGrid td:nth-child(${barLength}n + 1){
                 border-right: 1px solid royalblue !important;
             }
         `
-        if (!document.getElementById("barshadestyle")){
+        if (!document.getElementById("barshadestyle")) {
             var ruleElm = document.createElement("style")
             ruleElm.id = "barshadestyle"
             document.body.append(ruleElm)
         }
-        else{
+        else {
             var ruleElm = document.getElementById("barshadestyle")
         }
 
@@ -723,12 +747,12 @@
             "startOctave": 3
         },
         "something": {
-            "notes": [["D♯5",14],["D5",13],["D5",16],["C5",12],["A♯5",9],["A♯5",11],["G♯4",5],["G4",0],["F4",7],["D♯4",27],["D4",26],["D4",28],["C4",0],["C4",5],["C4",6],["C4",22],["C4",25],["C4",29],["A♯4",7],["A♯4",15],["A♯4",20],["A♯4",21],["G3",24],["D♯3",0],["C3",0],["C3",2],["C3",4],["C3",6],["C3",22],["C3",24],["C3",26],["C3",28],["A♯3",10],["A♯3",12],["A♯3",14],["A♯3",16],["A♯3",18],["A♯3",20]],
-            "steps":30,
-            "duration":0.25,
-            "waveform":"square",
-            "octaves":3,
-            "startOctave":3
+            "notes": [["D♯5", 14], ["D5", 13], ["D5", 16], ["C5", 12], ["A♯5", 9], ["A♯5", 11], ["G♯4", 5], ["G4", 0], ["F4", 7], ["D♯4", 27], ["D4", 26], ["D4", 28], ["C4", 0], ["C4", 5], ["C4", 6], ["C4", 22], ["C4", 25], ["C4", 29], ["A♯4", 7], ["A♯4", 15], ["A♯4", 20], ["A♯4", 21], ["G3", 24], ["D♯3", 0], ["C3", 0], ["C3", 2], ["C3", 4], ["C3", 6], ["C3", 22], ["C3", 24], ["C3", 26], ["C3", 28], ["A♯3", 10], ["A♯3", 12], ["A♯3", 14], ["A♯3", 16], ["A♯3", 18], ["A♯3", 20]],
+            "steps": 30,
+            "duration": 0.25,
+            "waveform": "square",
+            "octaves": 3,
+            "startOctave": 3
         }
     }
 
