@@ -200,7 +200,15 @@
         }
 
         #exportDiv {
-            text-align: right;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #loadExportButtonsDiv {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            justify-content: space-between;
         }
     </style>
 </head>
@@ -534,20 +542,7 @@
             document.getElementById("exportText").value = getTheScore(1)
         }
         else {
-            var node = document.createElement("div")
-            node.id = "exportDiv"
-            node.classList.add("card")
-            var textareaNode = document.createElement("textarea")
-            textareaNode.id = "exportText"
-            node.appendChild(textareaNode)
-            document.getElementById("controls").after(node)
-            var button = document.createElement("button")
-            button.onclick = function () {
-                download("track.json", textareaNode.value)
-            }
-            button.classList.add("skeuButton")
-            button.textContent = "Download"
-            node.appendChild(button)
+            createLoadExportCard()
             doExport()
         }
     }
@@ -570,15 +565,39 @@
             loadTrack(JSON.parse(document.getElementById("exportText").value))
         }
         else {
-            var node = document.createElement("div")
-            node.id = "exportDiv"
-            node.classList.add("card")
-            var textareaNode = document.createElement("textarea")
-            textareaNode.id = "exportText"
-            textareaNode.placeholder = "Paste track data in here then click load again"
-            node.appendChild(textareaNode)
-            document.getElementById("controls").after(node)
+            createLoadExportCard()
         }
+    }
+
+    function createLoadExportCard() {
+        var node = document.createElement("div")
+        node.id = "exportDiv"
+        node.classList.add("card")
+        var textareaNode = document.createElement("textarea")
+        textareaNode.id = "exportText"
+        textareaNode.placeholder = "Paste track data in here (or choose file) then click load again"
+        node.appendChild(textareaNode)
+        document.getElementById("controls").after(node)
+
+        var loadExportButtonsDiv = document.createElement("div")
+        loadExportButtonsDiv.id = "loadExportButtonsDiv"
+        node.appendChild(loadExportButtonsDiv)
+
+        var uploadButton = document.createElement("input")
+        uploadButton.setAttribute("type", "file")
+        uploadButton.id = "file"
+        uploadButton.oninput = loadTrackFromJsonFile
+        uploadButton.classList.add("skeuButton")
+        uploadButton.textContent = "Open file"
+        loadExportButtonsDiv.appendChild(uploadButton)
+
+        var button = document.createElement("button")
+        button.onclick = function () {
+            download("track.json", textareaNode.value)
+        }
+        button.classList.add("skeuButton")
+        button.textContent = "Download"
+        loadExportButtonsDiv.appendChild(button)
     }
 
     function changeWaveform(waveformSetting) {
@@ -645,10 +664,37 @@
         ruleElm.innerText = rule
     }
 
+    // stackoverflow saves the day again
+    function b64DecodeUnicode(str) {
+        // Going backwards: from bytestream, to percent-encoding, to original string.
+        return decodeURIComponent(atob(str).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    }
+
+    function loadTrackFromJsonFile() {
+        if (document.querySelector("#file").value == '') {
+            document.getElementById("exportText").value = 'No file selected';
+            return;
+        }
+
+        var file = document.querySelector("#file").files[0];
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            // document.getElementById("exportText").value = (e.target.result);
+            document.getElementById("exportText").value = b64DecodeUnicode(e.target.result.split(",")[1]);
+        };
+        reader.onerror = function (e) {
+            document.getElementById("exportText").value = 'Error reading file';
+        };
+        reader.readAsDataURL(file);
+    }
+
     function init() {
         stepChange(stepCount);
         trackSelectorGenerator();
-        // window.onbeforeunload = function() { return "Your work will be lost."; };
+        window.onbeforeunload = function() { return "Your work will be lost."; };
     }
 
     // globals
