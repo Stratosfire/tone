@@ -932,10 +932,11 @@ function conwayNextStep(currentState){
 
 function conwayCurrentState(){
     var currentState = []
-    for (var i=0; i<document.querySelector("#theGrid tbody").rows.length; i++){
+    var gridBody = document.querySelector("#theGrid tbody")
+    for (var i=0; i<gridBody.rows.length; i++){
         var rowState = []
-        for (var j=1; j<document.querySelector("#theGrid tbody").rows[i].cells.length; j++){
-            rowState.push(document.querySelector("#theGrid tbody").rows[i].cells[j].classList.contains("activeCell"))
+        for (var j=1; j<gridBody.rows[i].cells.length; j++){
+            rowState.push(gridBody.rows[i].cells[j].classList.contains("activeCell"))
         }
         currentState.push(rowState)
     }
@@ -970,12 +971,14 @@ function restartConway(){
 }
 
 function setPattern(patternString){
-    for (var i=0; i<document.querySelectorAll("#theGrid tbody td:not(.step_-1)").length; i++){
+    var gridCells = document.querySelectorAll("#theGrid tbody td:not(.step_-1)")
+    
+    for (var i=0; i<gridCells.length; i++){
         if (parseInt(patternString[i])){
-            document.querySelectorAll("#theGrid tbody td:not(.step_-1)")[i].classList.add("activeCell")
+            gridCells[i].classList.add("activeCell")
         }
         else{
-            document.querySelectorAll("#theGrid tbody td:not(.step_-1)")[i].classList.remove("activeCell")
+            gridCells[i].classList.remove("activeCell")
         }
     }
 }
