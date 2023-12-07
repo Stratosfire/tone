@@ -346,14 +346,14 @@
 
         // unhighlight all steps
         // var colClass = document.querySelectorAll(".currentStep")
-        var colClass = [...document.getElementsByClassName("currentStep")]
+        var colClass = [...theGrid.getElementsByClassName("currentStep")]
         colClass.forEach(element => {
             element.classList.remove("currentStep")
         });
 
         // highlight step
         // var colClass = document.querySelectorAll(`.step_${step}`)
-        var colClass = [...document.getElementsByClassName(`step_${step}`)]
+        var colClass = [...theGrid.getElementsByClassName(`step_${step}`)]
         colClass.forEach(element => {
             element.classList.add("currentStep")
         });
@@ -394,7 +394,8 @@
         // var noteElements = document.querySelectorAll(".activeCell.currentStep")
         var noteElements = [...theGrid.getElementsByClassName("currentStep")].filter(x => x.classList.contains("activeCell"))
         var noteArray = [...noteElements].map(x =>
-            x.parentElement.firstElementChild.innerText
+            // x.parentElement.firstElementChild.innerText
+            x.parentElement.firstElementChild.innerHTML //  innerText is slower, apparently
         )
         return noteArray ? noteArray : []
     }
