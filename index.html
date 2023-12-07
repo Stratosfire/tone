@@ -61,6 +61,7 @@
             color: white;
             text-align: center;
             user-select: none;
+            table-layout: fixed;
         }
 
         #theGrid td:first-of-type {
@@ -170,7 +171,7 @@
             box-shadow: 2px 2px 4px #80808080, -2px -2px 4px #ffffff6b;
             border-radius: 0.4em;
             border: 1px solid rgb(237, 237, 237);
-            transition: border 0.5s;
+            /* transition: border 0.5s; */
             cursor: pointer;
             user-select: none;
             padding: 7px;
@@ -344,13 +345,15 @@
         document.title = `Step ${step + 1}/${theGrid.rows[0].cells.length - 1}`
 
         // unhighlight all steps
-        var colClass = document.querySelectorAll(".currentStep")
+        // var colClass = document.querySelectorAll(".currentStep")
+        var colClass = [...document.getElementsByClassName("currentStep")]
         colClass.forEach(element => {
             element.classList.remove("currentStep")
         });
 
         // highlight step
-        var colClass = document.querySelectorAll(`.step_${step}`)
+        // var colClass = document.querySelectorAll(`.step_${step}`)
+        var colClass = [...document.getElementsByClassName(`step_${step}`)]
         colClass.forEach(element => {
             element.classList.add("currentStep")
         });
@@ -388,7 +391,8 @@
     }
 
     function getCurrentStepActiveCellNoteArray() {
-        var noteElements = document.querySelectorAll(".activeCell.currentStep")
+        // var noteElements = document.querySelectorAll(".activeCell.currentStep")
+        var noteElements = [...document.getElementsByClassName("currentStep")].filter(x => x.classList.contains("activeCell"))
         var noteArray = [...noteElements].map(x =>
             x.parentElement.cells[0].innerText
         )
