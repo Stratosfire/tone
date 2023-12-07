@@ -662,7 +662,7 @@
         var currentScoreNotesArray = currentScore["notes"]
         var newScoreNotesArray = []
 
-        if (currentStep == -1){
+        if (currentStep == -1) {
             return
         }
 
@@ -670,7 +670,7 @@
             var note = currentScoreNotesArray[i][0]
             var pos = currentScoreNotesArray[i][1]
 
-            if (pos == currentStep){
+            if (pos == currentStep) {
                 continue
             }
 
@@ -683,6 +683,10 @@
 
         newScore["notes"] = newScoreNotesArray
         newScore["steps"] = newScore["steps"] - 1
+
+        if (currentStep >= newScore["steps"]) {
+            currentStep--
+        }
 
         loadTrack(newScore)
         highlightStep(currentStep)
