@@ -662,6 +662,10 @@
         var currentScoreNotesArray = currentScore["notes"]
         var newScoreNotesArray = []
 
+        if (currentStep == -1){
+            return
+        }
+
         for (var i = 0; i < currentScoreNotesArray.length; i++) {
             var note = currentScoreNotesArray[i][0]
             var pos = currentScoreNotesArray[i][1]
