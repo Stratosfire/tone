@@ -293,7 +293,7 @@
     'use strict'
 
     function stepChange(steps, noReload) {
-        var theGrid = document.getElementById("theGrid")
+        // var theGrid = document.getElementById("theGrid")
         var stepSpinner = document.getElementById("stepSpinner")
         var currentTrack = getTheScore()
         var newGridHTML = []
@@ -368,7 +368,7 @@
     }
 
     function addOnclickToGridCells() {
-        var theGrid = document.getElementById("theGrid")
+        // var theGrid = document.getElementById("theGrid")
         for (var row = 1; row < theGrid.rows.length; row++) {
             for (var col = 1; col < theGrid.rows[row].cells.length; col++) {
                 var cell = theGrid.rows[row].cells[col]
@@ -392,9 +392,9 @@
 
     function getCurrentStepActiveCellNoteArray() {
         // var noteElements = document.querySelectorAll(".activeCell.currentStep")
-        var noteElements = [...document.getElementsByClassName("currentStep")].filter(x => x.classList.contains("activeCell"))
+        var noteElements = [...theGrid.getElementsByClassName("currentStep")].filter(x => x.classList.contains("activeCell"))
         var noteArray = [...noteElements].map(x =>
-            x.parentElement.cells[0].innerText
+            x.parentElement.firstElementChild.innerText
         )
         return noteArray ? noteArray : []
     }
@@ -443,7 +443,7 @@
     function getTheScore(asString) {
         var theScore = {}
 
-        theScore["notes"] = [...document.getElementById("theGrid").getElementsByClassName("activeCell")].map(x =>
+        theScore["notes"] = [...theGrid.getElementsByClassName("activeCell")].map(x =>
             [
                 x.parentElement.cells[0].innerText,
                 Array.from(x.parentNode.children).indexOf(x) - 1
@@ -798,6 +798,7 @@
     var waveform = "sine"
     var tempState
     var isWideModeEnabled = 0
+    var theGrid = document.getElementById("theGrid")
 
     var tracks = {
         "stillAlive": {
