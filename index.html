@@ -813,9 +813,20 @@
     }
 
     function clearNotes() {
-        document.querySelectorAll(".activeCell").forEach(element => {
-            element.classList.remove("activeCell")
-        });
+        const classesToRemove = [
+            "activeCell",
+            "activeCellDouble",
+            "activeCellHalf",
+            "activeCellHalf01",
+            "activeCellHalf10",
+            "activeCellHalf11"
+        ]
+        for (var i = 0; i < classesToRemove.length; i++) {
+            var tempClass = classesToRemove[i]
+            document.querySelectorAll(`.${tempClass}`).forEach(element => {
+                element.classList.remove(tempClass)
+            });
+        }
     }
 
     function startAutoplay() {
