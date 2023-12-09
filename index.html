@@ -940,7 +940,11 @@
         var currentScore = getTheScore()
         var newScore = currentScore
         var currentScoreNotesArray = currentScore["notes"]
+        var currentScoreHalfNotesArray = currentScore["halfnotes"]
+        var currentScoreDoubleNotesArray = currentScore["doublenotes"]
         var newScoreNotesArray = []
+        var newScoreHalfNotesArray = []
+        var newScoreDoubleNotesArray = []
 
         for (var i = 0; i < currentScoreNotesArray.length; i++) {
             var note = currentScoreNotesArray[i][0]
@@ -953,7 +957,32 @@
             newScoreNotesArray.push([note, pos])
         }
 
+        for (var i = 0; i < currentScoreHalfNotesArray.length; i++) {
+            var note = currentScoreHalfNotesArray[i][0]
+            var pos = currentScoreHalfNotesArray[i][1]
+            var dur = currentScoreHalfNotesArray[i][2]
+
+            if (pos > currentStep) {
+                pos++
+            }
+
+            newScoreHalfNotesArray.push([note, pos, dur])
+        }
+
+        for (var i = 0; i < currentScoreDoubleNotesArray.length; i++) {
+            var note = currentScoreDoubleNotesArray[i][0]
+            var pos = currentScoreDoubleNotesArray[i][1]
+
+            if (pos > currentStep) {
+                pos++
+            }
+
+            newScoreDoubleNotesArray.push([note, pos])
+        }
+
         newScore["notes"] = newScoreNotesArray
+        newScore["halfnotes"] = newScoreHalfNotesArray
+        newScore["doublenotes"] = newScoreDoubleNotesArray
         newScore["steps"] = newScore["steps"] + 1
 
         loadTrack(newScore)
@@ -964,7 +993,11 @@
         var currentScore = getTheScore()
         var newScore = currentScore
         var currentScoreNotesArray = currentScore["notes"]
+        var currentScoreHalfNotesArray = currentScore["halfnotes"]
+        var currentScoreDoubleNotesArray = currentScore["doublenotes"]
         var newScoreNotesArray = []
+        var newScoreHalfNotesArray = []
+        var newScoreDoubleNotesArray = []
 
         if (currentStep == -1) {
             return
@@ -985,7 +1018,40 @@
             newScoreNotesArray.push([note, pos])
         }
 
+        for (var i = 0; i < currentScoreHalfNotesArray.length; i++) {
+            var note = currentScoreHalfNotesArray[i][0]
+            var pos = currentScoreHalfNotesArray[i][1]
+            var dur = currentScoreHalfNotesArray[i][2]
+
+            if (pos == currentStep) {
+                continue
+            }
+
+            if (pos > currentStep) {
+                pos--
+            }
+
+            newScoreHalfNotesArray.push([note, pos, dur])
+        }
+
+        for (var i = 0; i < currentScoreDoubleNotesArray.length; i++) {
+            var note = currentScoreDoubleNotesArray[i][0]
+            var pos = currentScoreDoubleNotesArray[i][1]
+
+            if (pos == currentStep) {
+                continue
+            }
+
+            if (pos > currentStep) {
+                pos--
+            }
+
+            newScoreDoubleNotesArray.push([note, pos])
+        }
+
         newScore["notes"] = newScoreNotesArray
+        newScore["halfnotes"] = newScoreHalfNotesArray
+        newScore["doublenotes"] = newScoreDoubleNotesArray
         newScore["steps"] = newScore["steps"] - 1
 
         if (currentStep >= newScore["steps"]) {
