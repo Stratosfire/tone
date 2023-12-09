@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tone</title>
     <style>
+        :root {
+            --halfNote: rgb(17, 200, 17);
+        }
+
         html {
             font-family: sans-serif;
             background: #e6e7e8;
@@ -166,6 +170,18 @@
             background: #B96AD2;
         }
 
+        #theGrid td.activeCellHalf01 {
+            background: linear-gradient(-90deg, var(--halfNote) 0%, var(--halfNote) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%);
+        }
+
+        #theGrid td.activeCellHalf10 {
+            background: linear-gradient(90deg, var(--halfNote) 0%, var(--halfNote) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0) 100%);
+        }
+
+        #theGrid td.activeCellHalf11 {
+            background: linear-gradient(90deg, var(--halfNote) 0%, var(--halfNote) 49%, black 49%, black 51%, var(--halfNote) 51%, var(--halfNote) 100%);
+        }
+
         .skeuButton {
             background: white;
             color: black;
@@ -293,6 +309,13 @@
                     <button class="skeuButton" onclick="doubleSpace(true)">Double notes</button>
                 </td>
             </tr>
+            <tr>
+                <td>Note duration</td>
+                <td>
+                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addOnclickToGridCells()">Whole</button>
+                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addHalfNoteOnclickToGridCells()">Half</button>
+                </td>
+            </tr>
         </table>
     </div>
 
@@ -371,7 +394,9 @@
         currentStep = (currentStep + 1) % stepCount
         highlightStep(currentStep)
         var notes = getCurrentStepActiveCellNoteArray()
+        var halfNotes = getCurrentStepActiveCellHalfNoteArray()
         playChordArray(notes)
+        playHalfChordArray(halfNotes)
 
     }
 
@@ -381,10 +406,20 @@
             for (var col = 1; col < theGrid.rows[row].cells.length; col++) {
                 var cell = theGrid.rows[row].cells[col]
                 cell.onclick = function () {
-                    this.classList.toggle("activeCell")
-                    if (this.classList.contains("activeCell")) {
-                        initAudioContext();
-                        playNoteByName(this.parentElement.cells[0].innerText)
+                    if (this.classList.contains("activeCellHalf")) {
+                        this.classList.remove(
+                            "activeCellHalf",
+                            "activeCellHalf01",
+                            "activeCellHalf10",
+                            "activeCellHalf11"
+                        )
+                    }
+                    else {
+                        this.classList.toggle("activeCell")
+                        if (this.classList.contains("activeCell")) {
+                            initAudioContext();
+                            playNoteByName(this.parentElement.cells[0].innerText)
+                        }
                     }
                 }
             }
@@ -398,12 +433,85 @@
         }
     }
 
+    function addHalfNoteOnclickToGridCells() {
+        for (var row = 1; row < theGrid.rows.length; row++) {
+            for (var col = 1; col < theGrid.rows[row].cells.length; col++) {
+                var cell = theGrid.rows[row].cells[col]
+                cell.onclick = function () {
+                    if (this.classList.contains("activeCell")) {
+                        this.classList.remove("activeCell")
+                    }
+                    else if (this.classList.contains("activeCellHalf10")) {
+                        this.classList.remove("activeCellHalf10")
+                        this.classList.add("activeCellHalf01")
+                        initAudioContext();
+                        playHalfNoteByName(this.parentElement.cells[0].innerText, "10")
+                    }
+                    else if (this.classList.contains("activeCellHalf01")) {
+                        this.classList.remove("activeCellHalf01")
+                        this.classList.add("activeCellHalf11")
+                        initAudioContext();
+                        playHalfNoteByName(this.parentElement.cells[0].innerText, "11")
+                    }
+                    else if (this.classList.contains("activeCellHalf11")) {
+                        this.classList.remove("activeCellHalf11", "activeCellHalf")
+                        initAudioContext();
+                    }
+                    else {
+                        this.classList.add("activeCellHalf10", "activeCellHalf")
+                        initAudioContext();
+                        playHalfNoteByName(this.parentElement.cells[0].innerText, "01")
+                    }
+                }
+            }
+        }
+        // add event to headers
+        for (var col = 0; col < theGrid.rows[0].cells.length; col++) {
+            var cell = theGrid.rows[0].cells[col]
+            cell.onclick = function () {
+                highlightStep(Array.from(this.parentNode.children).indexOf(this) - 1)
+            }
+        }
+    }
+
+    function removeAllNoteOnclickEvents() {
+        for (var row = 1; row < theGrid.rows.length; row++) {
+            for (var col = 1; col < theGrid.rows[row].cells.length; col++) {
+                var cell = theGrid.rows[row].cells[col]
+                cell.onclick = ""
+            }
+        }
+        // add event to headers
+        for (var col = 0; col < theGrid.rows[0].cells.length; col++) {
+            var cell = theGrid.rows[0].cells[col]
+            cell.onclick = ""
+        }
+    }
+
     function getCurrentStepActiveCellNoteArray() {
         // var noteElements = document.querySelectorAll(".activeCell.currentStep")
         var noteElements = [...theGrid.getElementsByClassName("currentStep")].filter(x => x.classList.contains("activeCell"))
         var noteArray = [...noteElements].map(x =>
             // x.parentElement.firstElementChild.innerText
             x.parentElement.firstElementChild.innerHTML //  innerText is slower, apparently
+        )
+        return noteArray ? noteArray : []
+    }
+
+    function getCurrentStepActiveCellHalfNoteArray() {
+        // var noteElements = document.querySelectorAll(".activeCell.currentStep")
+        var noteElements = [...theGrid.getElementsByClassName("currentStep")].filter(x => x.classList.contains("activeCellHalf"))
+        var noteArray = [...noteElements].map(x =>
+            [
+                x.parentElement.firstElementChild.innerHTML,
+                x.classList.contains("activeCellHalf01") 
+                ? "01" 
+                : x.classList.contains("activeCellHalf10") 
+                ? "10" 
+                : x.classList.contains("activeCellHalf11") 
+                ? "11" 
+                : undefined
+            ]
         )
         return noteArray ? noteArray : []
     }
@@ -428,6 +536,43 @@
         oscillator.stop(audioCtx.currentTime + stepDuration);
     }
 
+    function playHalfNoteByName(noteName, pattern) {
+        `
+        Plays a note given a name, e.g. A4 or C♯3
+        Will let you get away with using # instead of ♯
+        Assumes you have an audio context called audioCtx
+        `
+        var noteFrequency = getFrequencyFromNoteName(noteName)
+
+        var oscillator = audioCtx.createOscillator();
+        oscillator.type = waveform ? waveform : "sine";
+        oscillator.frequency.setValueAtTime(noteFrequency, audioCtx.currentTime); // value in hertz
+        oscillator.connect(mainGainNode);
+
+        var oscillator2 = audioCtx.createOscillator();
+        oscillator2.type = waveform ? waveform : "sine";
+        oscillator2.frequency.setValueAtTime(noteFrequency, audioCtx.currentTime); // value in hertz
+        oscillator2.connect(mainGainNode);
+
+        if (pattern == "01") {
+            oscillator.start(audioCtx.currentTime + (stepDuration / 2));
+            oscillator.stop(audioCtx.currentTime + stepDuration);
+        }
+        else if (pattern == "10") {
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + (stepDuration / 2));
+        }
+        else if (pattern == "11") {
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + (stepDuration / 2));
+            oscillator2.start(audioCtx.currentTime + (stepDuration / 2));
+            oscillator2.stop(audioCtx.currentTime + stepDuration);
+        }
+        else {
+            console.error("Invalid pattern provided to playHalfNoteByName()")
+        }
+    }
+
     function getFrequencyFromNoteName(noteName) {
         `
         Gets frequency in Hz for a note given a name, e.g. A4 or C♯3
@@ -447,6 +592,11 @@
     function playChordArray(chordArray) {
         volume = 1 / (chordArray.length * 2)
         chordArray.map(x => setTimeout(playNoteByName, 0, x))
+    }
+
+    function playHalfChordArray(chordArray) {
+        volume = 1 / (chordArray.length * 2)
+        chordArray.map(x => setTimeout(playHalfNoteByName, 0, x[0], x[1]))
     }
 
     function getTheScore(asString) {
@@ -793,6 +943,10 @@
             if (wide) {
                 wideMode()
             }
+            var nowarn = parseInt(url.searchParams.get("nowarn"))
+            if (nowarn) {
+                doWarn = false
+            }
         }
         catch {
             console.warn("Not impressed with your invalid URL parameters")
@@ -803,8 +957,11 @@
     function init() {
         stepChange(stepCount);
         trackSelectorGenerator();
-        window.onbeforeunload = function () { return "Your work will be lost."; };
         read_url_params_and_apply()
+
+        if (doWarn) {
+            window.onbeforeunload = function () { return "Your work will be lost."; };
+        }
     }
 
     // globals
@@ -822,6 +979,7 @@
     var tempState
     var isWideModeEnabled = 0
     var theGrid = document.getElementById("theGrid")
+    var doWarn = true
 
     var tracks = {
         "stillAlive": {
