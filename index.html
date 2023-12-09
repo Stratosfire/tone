@@ -322,6 +322,14 @@
                     <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addDoubleNoteOnclickToGridCells()">Double</button>
                 </td>
             </tr>
+            <tr>
+                <td>Attack</td>
+                <td><input type="number" value="1" step="0.01" min="0" max="1" onchange="setAttack(parseFloat(this.value))" /></td>
+            </tr>
+            <tr>
+                <td>Release</td>
+                <td><input type="number" value="0" step="0.01" min="0" max="1" onchange="setRelease(parseFloat(this.value))" /></td>
+            </tr>
         </table>
     </div>
 
@@ -588,6 +596,15 @@
         var oscillator = audioCtx.createOscillator();
         oscillator.type = waveform ? waveform : "sine";
         oscillator.frequency.setValueAtTime(noteFrequency, audioCtx.currentTime); // value in hertz
+
+        if (attackTime){
+            mainGainNode.gain.linearRampToValueAtTime(1, attackTime)
+        }
+        
+        if (releaseTime){
+            mainGainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + (stepDuration - releaseTime))
+        }
+
         oscillator.connect(mainGainNode);
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + stepDuration);
@@ -1156,6 +1173,14 @@
         loadTrack(score)
     }
 
+    function setAttack(inputAttack){
+        attackTime = inputAttack * stepDuration
+    }
+
+    function setRelease(inputRelease){
+        releaseTime = inputRelease * stepDuration
+    }
+
     function read_url_params_and_apply() {
         var url_string = window.location.href
         var url = new URL(url_string)
@@ -1201,6 +1226,8 @@
     var isWideModeEnabled = 0
     var theGrid = document.getElementById("theGrid")
     var doWarn = true
+    var attackTime
+    var releaseTime
 
     // init
     init();
