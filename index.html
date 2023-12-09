@@ -609,6 +609,20 @@
             ]
         )
 
+        theScore["halfnotes"] = [...theGrid.getElementsByClassName("activeCellHalf")].map(x =>
+            [
+                x.parentElement.cells[0].innerText,
+                Array.from(x.parentNode.children).indexOf(x) - 1,
+                x.classList.contains("activeCellHalf01") 
+                ? "01" 
+                : x.classList.contains("activeCellHalf10") 
+                ? "10" 
+                : x.classList.contains("activeCellHalf11") 
+                ? "11" 
+                : undefined
+            ]
+        )
+
         theScore["steps"] = stepCount
         theScore["duration"] = stepDuration
         theScore["waveform"] = waveform
@@ -628,6 +642,7 @@
 
         // load the data
         var notesArray = trackData["notes"]
+        var halfNotesArray = trackData["halfnotes"]
         var steps = trackData["steps"]
         var duration = trackData["duration"]
         var waveform = trackData["waveform"]
@@ -661,6 +676,21 @@
             }
             catch {
                 console.warn(`Cannot place ${note} at step ${step}, truncating score`)
+            }
+        }
+
+        // half notes
+        for (var i = 0; i < halfNotesArray.length; i++) {
+            var note = halfNotesArray[i][0]
+            var step = halfNotesArray[i][1]
+            var duration = halfNotesArray[i][2]
+            var rowElement = document.querySelector(`[data-note=${note}]`).parentElement
+            try {
+                var cell = rowElement.cells[step + 1]
+                cell.classList.add("activeCellHalf", `activeCellHalf${duration}`)
+            }
+            catch {
+                console.warn(`Cannot place halfnote ${note} at step ${step}, truncating score`)
             }
         }
 
