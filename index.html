@@ -422,6 +422,9 @@
                             "activeCellHalf11"
                         )
                     }
+                    else if (this.classList.contains("activeCellDouble")) {
+                        this.classList.remove("activeCellDouble")
+                    }
                     else {
                         this.classList.toggle("activeCell")
                         if (this.classList.contains("activeCell")) {
@@ -484,6 +487,9 @@
                 cell.onclick = function () {
                     if (this.classList.contains("activeCell")) {
                         this.classList.remove("activeCell")
+                    }
+                    else if (this.classList.contains("activeCellDouble")) {
+                        this.classList.remove("activeCellDouble")
                     }
                     else if (this.classList.contains("activeCellHalf10")) {
                         this.classList.remove("activeCellHalf10")
@@ -1052,7 +1058,7 @@
         score["steps"] = score["steps"] * 2
         score["notes"] = score["notes"].map(x => [x[0], x[1] * 2])
 
-        if (score["doublenotes"]){
+        if (score["doublenotes"]) {
             score["doublenotes"] = score["doublenotes"].map(x => [x[0], x[1] * 2])
         }
 
@@ -1062,7 +1068,7 @@
 
         if (doubleDouble) {
             score["notes"] = score["notes"].concat(score["notes"].map(x => [x[0], x[1] + 1]))
-            if (score["doublenotes"]){
+            if (score["doublenotes"]) {
                 score["doublenotes"] = score["doublenotes"].concat(score["doublenotes"].map(x => [x[0], x[1] + 1]))
             }
             if (score["halfnotes"]) {
