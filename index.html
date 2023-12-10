@@ -598,6 +598,7 @@
         oscillator.frequency.setValueAtTime(noteFrequency, audioCtx.currentTime); // value in hertz
 
         if (attackTime){
+            mainGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
             mainGainNode.gain.linearRampToValueAtTime(1, attackTime)
         }
         
