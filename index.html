@@ -8,6 +8,8 @@
     <style>
         :root {
             --halfNote: rgb(17, 200, 17);
+            --doubleNote: skyblue;
+            --singleNote: #B96AD2;
         }
 
         html {
@@ -167,7 +169,7 @@
         }
 
         #theGrid td.activeCell {
-            background: #B96AD2;
+            background: var(--singleNote);
         }
 
         #theGrid td.activeCellHalf01 {
@@ -183,7 +185,7 @@
         }
 
         #theGrid td.activeCellDouble {
-            background: skyblue;
+            background: var(--doubleNote);
         }
 
         .skeuButton {
@@ -232,6 +234,54 @@
             align-items: stretch;
             justify-content: space-between;
         }
+
+        #noteDurationSwitcher {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            width: 30px;
+            height: 30px;
+            background: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.411);
+            border-radius: 10px;
+            border: 7px solid white;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255, 255, 255, 0);
+            transition: box-shadow 0.3s, color 0.2s;
+            cursor: pointer;
+        }
+
+        #noteDurationSwitcher:hover {
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.689);
+            color: white;
+        }
+
+        #noteDurationSwitcher.double {
+            background: var(--doubleNote);
+        }
+
+        #noteDurationSwitcher.double::after {
+            content: "2x";
+        }
+
+        #noteDurationSwitcher.single {
+            background: var(--singleNote);
+        }
+
+        #noteDurationSwitcher.single::after {
+            content: "1x";
+        }
+
+        #noteDurationSwitcher.half {
+            background: var(--halfNote);
+        }
+
+        #noteDurationSwitcher.half::after {
+            content: "½x";
+        }
     </style>
     <script src="res/tracks.js"></script>
 </head>
@@ -277,6 +327,8 @@
                 <button class="skeuButton" onclick="wideMode()">Wide mode</button>
             </div>
         </div>
+
+        <div id="noteDurationSwitcher" class="single" onclick="cycleNoteDuration()"></div>
     </div>
 
     <div id="gridContainer" class="card">
@@ -314,14 +366,14 @@
                     <button class="skeuButton" onclick="doubleSpace(true)">Double notes</button>
                 </td>
             </tr>
-            <tr>
+            <!-- <tr>
                 <td>Note duration</td>
                 <td>
-                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addOnclickToGridCells()">Whole</button>
-                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addHalfNoteOnclickToGridCells()">Half</button>
-                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addDoubleNoteOnclickToGridCells()">Double</button>
+                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addOnclickToGridCells(); notePickerDuration = 'single'">Whole</button>
+                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addHalfNoteOnclickToGridCells(); notePickerDuration = 'half'">Half</button>
+                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addDoubleNoteOnclickToGridCells(); notePickerDuration = 'double'">Double</button>
                 </td>
-            </tr>
+            </tr> -->
             <tr>
                 <td>Attack</td>
                 <td><input type="number" value="1" step="0.01" min="0" max="1" onchange="setAttack(parseFloat(this.value))" /></td>
@@ -597,12 +649,12 @@
         oscillator.type = waveform ? waveform : "sine";
         oscillator.frequency.setValueAtTime(noteFrequency, audioCtx.currentTime); // value in hertz
 
-        if (attackTime){
+        if (attackTime) {
             mainGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
             mainGainNode.gain.linearRampToValueAtTime(1, attackTime)
         }
-        
-        if (releaseTime){
+
+        if (releaseTime) {
             mainGainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + (stepDuration - releaseTime))
         }
 
@@ -1174,12 +1226,34 @@
         loadTrack(score)
     }
 
-    function setAttack(inputAttack){
+    function setAttack(inputAttack) {
         attackTime = inputAttack * stepDuration
     }
 
-    function setRelease(inputRelease){
+    function setRelease(inputRelease) {
         releaseTime = inputRelease * stepDuration
+    }
+
+    function cycleNoteDuration() {
+        var switcherElm = document.getElementById("noteDurationSwitcher")
+        var noteDurationArray = ["single", "double", "half"]
+        var noteFunctionObj = {
+            "single": addOnclickToGridCells,
+            "double": addDoubleNoteOnclickToGridCells,
+            "half": addHalfNoteOnclickToGridCells
+        }
+        var currentIdx = noteDurationArray.indexOf(notePickerDuration)
+        var nextIdx = (currentIdx + 1) % noteDurationArray.length
+        var nextDuration = noteDurationArray[nextIdx]
+
+        notePickerDuration = nextDuration
+        switcherElm.classList.remove(noteDurationArray[currentIdx])
+        switcherElm.classList.add(nextDuration)
+
+        removeAllNoteOnclickEvents()
+
+        var noteFunction = noteFunctionObj[nextDuration]
+        noteFunction()
     }
 
     function read_url_params_and_apply() {
@@ -1229,6 +1303,7 @@
     var doWarn = true
     var attackTime
     var releaseTime
+    var notePickerDuration = "single"
 
     // init
     init();
