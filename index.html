@@ -424,7 +424,7 @@
         theGrid.innerHTML = newGridHTML.join("\n")
         stepSpinner.value = steps
 
-        addOnclickToGridCells()
+        cycleNoteDuration(true)
 
         if (!noReload) {
             loadTrack(currentTrack, true)
@@ -1235,7 +1235,7 @@
         releaseTime = inputRelease * stepDuration
     }
 
-    function cycleNoteDuration() {
+    function cycleNoteDuration(refreshCurrentOnly) {
         var switcherElm = document.getElementById("noteDurationSwitcher")
         var noteDurationArray = ["single", "double", "half"]
         var noteFunctionObj = {
@@ -1244,7 +1244,7 @@
             "half": addHalfNoteOnclickToGridCells
         }
         var currentIdx = noteDurationArray.indexOf(notePickerDuration)
-        var nextIdx = (currentIdx + 1) % noteDurationArray.length
+        var nextIdx = refreshCurrentOnly? currentIdx : (currentIdx + 1) % noteDurationArray.length
         var nextDuration = noteDurationArray[nextIdx]
 
         notePickerDuration = nextDuration
