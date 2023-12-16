@@ -735,17 +735,20 @@
 
     function playChordArray(chordArray) {
         volume = 1 / (chordArray.length * 2)
-        chordArray.map(x => setTimeout(playNoteByName, 0, x))
+        // chordArray.map(x => setTimeout(playNoteByName, 0, x))
+        chordArray.map(x => playNoteByName(x))
     }
 
     function playHalfChordArray(chordArray) {
         volume = 1 / (chordArray.length * 2)
-        chordArray.map(x => setTimeout(playHalfNoteByName, 0, x[0], x[1]))
+        // chordArray.map(x => setTimeout(playHalfNoteByName, 0, x[0], x[1]))
+        chordArray.map(x => playHalfNoteByName(x[0], x[1]))
     }
 
     function playDoubleChordArray(chordArray) {
         volume = 1 / (chordArray.length * 2)
-        chordArray.map(x => setTimeout(playDoubleNoteByName, 0, x))
+        // chordArray.map(x => setTimeout(playDoubleNoteByName, 0, x))
+        chordArray.map(x => playDoubleNoteByName(x))
     }
 
     function getTheScore(asString) {
