@@ -734,19 +734,25 @@
     }
 
     function playChordArray(chordArray) {
-        volume = 1 / (chordArray.length * 2)
+        if (!chordArray.length){
+            return
+        }
         // chordArray.map(x => setTimeout(playNoteByName, 0, x))
         chordArray.map(x => playNoteByName(x))
     }
 
     function playHalfChordArray(chordArray) {
-        volume = 1 / (chordArray.length * 2)
+        if (!chordArray.length){
+            return
+        }
         // chordArray.map(x => setTimeout(playHalfNoteByName, 0, x[0], x[1]))
         chordArray.map(x => playHalfNoteByName(x[0], x[1]))
     }
 
     function playDoubleChordArray(chordArray) {
-        volume = 1 / (chordArray.length * 2)
+        if (!chordArray.length){
+            return
+        }
         // chordArray.map(x => setTimeout(playDoubleNoteByName, 0, x))
         chordArray.map(x => playDoubleNoteByName(x))
     }
@@ -1298,7 +1304,7 @@
     var chromaticScale = ["A", "A♯", "B", "C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯"]
     var audioCtx
     var mainGainNode
-    var volume = 0.5
+    var volume = 0.15
     var autoStepIntervalIdArray = []
     var waveform = "sine"
     var tempState
