@@ -383,6 +383,14 @@
                 <td>Release</td>
                 <td><input type="number" value="0" step="0.01" min="0" max="1" onchange="setRelease(parseFloat(this.value))" /></td>
             </tr>
+            <tr>
+                <td>Transpose</td>
+                <td>
+                    <input id="transposeAmountSpinner" type="number" value="1" step="1" min="0" max="12" style="width: 5em" />
+                    <button class="skeuButton" onclick="transposeScore(-1 * parseInt(document.getElementById('transposeAmountSpinner').value))" style="width: 3em">-</button>
+                    <button class="skeuButton" onclick="transposeScore(parseInt(document.getElementById('transposeAmountSpinner').value))" style="width: 3em">+</button>
+                </td>
+            </tr>
         </table>
     </div>
 
@@ -1305,12 +1313,14 @@
         var maxOctave = Math.max(...allOctavesArray)
 
         returnScore["startOctave"] = minOctave
-        returnScore["octaves"] = Math.max(maxOctave - minOctave, 2)
+        returnScore["octaves"] = Math.max(1 + maxOctave - minOctave, 2)
 
         if (maxOctave > 8 || minOctave < 1){
             console.error(`Cannot transpose any ${semitones > 0 ? "higher" : "lower"}`)
             return
         }
+
+        console.log(returnScore)
 
         loadTrack(returnScore)
     }
