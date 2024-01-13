@@ -734,7 +734,7 @@
     }
 
     function playChordArray(chordArray) {
-        if (!chordArray.length){
+        if (!chordArray.length) {
             return
         }
         // chordArray.map(x => setTimeout(playNoteByName, 0, x))
@@ -742,7 +742,7 @@
     }
 
     function playHalfChordArray(chordArray) {
-        if (!chordArray.length){
+        if (!chordArray.length) {
             return
         }
         // chordArray.map(x => setTimeout(playHalfNoteByName, 0, x[0], x[1]))
@@ -750,7 +750,7 @@
     }
 
     function playDoubleChordArray(chordArray) {
-        if (!chordArray.length){
+        if (!chordArray.length) {
             return
         }
         // chordArray.map(x => setTimeout(playDoubleNoteByName, 0, x))
@@ -1253,7 +1253,7 @@
             "half": addHalfNoteOnclickToGridCells
         }
         var currentIdx = noteDurationArray.indexOf(notePickerDuration)
-        var nextIdx = refreshCurrentOnly? currentIdx : (currentIdx + 1) % noteDurationArray.length
+        var nextIdx = refreshCurrentOnly ? currentIdx : (currentIdx + 1) % noteDurationArray.length
         var nextDuration = noteDurationArray[nextIdx]
 
         notePickerDuration = nextDuration
@@ -1264,6 +1264,55 @@
 
         var noteFunction = noteFunctionObj[nextDuration]
         noteFunction()
+    }
+
+    function mod(n, m) {
+        return ((n % m) + m) % m;
+    }
+
+    function transposeNote(inputNote, semitones) {
+        var note = inputNote.slice(0, inputNote.length - 1) // won't work at A10, but you don't need that so go away
+        var octave = parseInt(inputNote.slice(inputNote.length - 1))
+
+        var returnNote = chromaticScale[mod((chromaticScale.indexOf(note) + semitones), chromaticScale.length)]
+        var returnOctave = Math.floor(((octave * 12) + (chromaticScale.indexOf(note) + semitones)) / 12)
+
+        return `${returnNote}${returnOctave}`
+    }
+
+    function transposeScore(semitones) {
+        var returnScore = getTheScore()
+
+        // return early if there aren't any notes
+        if (!(returnScore["notes"].length + returnScore["halfnotes"].length + returnScore["doublenotes"].length)){
+            console.warn("Nothing to transpose")
+            return
+        }
+
+        // transpose the notes
+        returnScore["notes"] = returnScore["notes"].map(x => [transposeNote(x[0], semitones), x[1]])
+        returnScore["halfnotes"] = returnScore["halfnotes"].map(x => [transposeNote(x[0], semitones), x[1], x[2]])
+        returnScore["doublenotes"] = returnScore["doublenotes"].map(x => [transposeNote(x[0], semitones), x[1]])
+
+        // fix the octave start and number
+        var allOctavesArray = [
+            returnScore["notes"].map(x => parseInt(x[0].slice(x[0].length - 1))),
+            returnScore["halfnotes"].map(x => parseInt(x[0].slice(x[0].length - 1))),
+            returnScore["doublenotes"].map(x => parseInt(x[0].slice(x[0].length - 1)))
+        ].flat()
+
+        var minOctave = Math.min(...allOctavesArray)
+        var maxOctave = Math.max(...allOctavesArray)
+
+        returnScore["startOctave"] = minOctave
+        returnScore["octaves"] = Math.max(maxOctave - minOctave, 2)
+
+        if (maxOctave > 8 || minOctave < 1){
+            console.error(`Cannot transpose any ${semitones > 0 ? "higher" : "lower"}`)
+            return
+        }
+
+        loadTrack(returnScore)
     }
 
     function read_url_params_and_apply() {
