@@ -520,6 +520,8 @@
                 highlightStep(Array.from(this.parentNode.children).indexOf(this) - 1)
             }
         }
+
+        annotateCellsWithNoteName()
     }
 
     function addDoubleNoteOnclickToGridCells() {
@@ -817,6 +819,14 @@
         else {
             return theScore
         }
+    }
+
+    function annotateCellsWithNoteName(){
+        [...document.querySelectorAll("[data-note]")].forEach(x => 
+            [...x.parentElement.getElementsByTagName("td")].forEach(y =>
+                y.title = x.dataset.note
+            )
+        )
     }
 
     function loadTrack(trackData, noStepChange) {
