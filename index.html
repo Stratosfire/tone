@@ -317,7 +317,7 @@
             </div>
             <div>
                 <!-- <button class="skeuButton" onclick="loadTrack(tracks.stillAlive)">Load</button> -->
-                <button class="skeuButton" onclick="clearNotes()">Clear</button>
+                <button class="skeuButton" onclick="clearNotesIfSure()">Clear</button>
                 <div id="trackSelection" style="display: inline-block"></div>
                 <button class="skeuButton" onclick="doLoad()">Load</button>
                 <button class="skeuButton" onclick="doExport()">Export</button>
@@ -914,6 +914,12 @@
             document.querySelectorAll(`.${tempClass}`).forEach(element => {
                 element.classList.remove(tempClass)
             });
+        }
+    }
+
+    function clearNotesIfSure(){
+        if (confirm("Clear all notes?")){
+            clearNotes()
         }
     }
 
