@@ -400,6 +400,12 @@
                     <button class="skeuButton" onclick="transposeScore(parseInt(document.getElementById('transposeAmountSpinner').value))" style="width: 3em">+</button>
                 </td>
             </tr>
+            <tr>
+                <td>(╯°□°)╯︵ ┻━┻</td>
+                <td>
+                    <button class="skeuButton" onclick="flipScore()">Flip</button>
+                </td>
+            </tr>
         </table>
     </div>
 
@@ -1346,6 +1352,43 @@
         }
 
         console.log(returnScore)
+
+        loadTrack(returnScore)
+    }
+
+    function noteToMidiNumber(inputNote){
+        var octave = parseInt(inputNote.slice(inputNote.length - 1))
+        var note = inputNote.slice(0, inputNote.length - 1)
+        
+        return (12 * octave) + chromaticScale.indexOf(note) + 21
+    }
+
+    function flipScore(){
+        var returnScore = getTheScore()
+        var axis = 69 // midi A4
+
+        // flip the notes
+        returnScore["notes"] = returnScore["notes"].map(x => [transposeNote(x[0], 2*(axis - noteToMidiNumber(x[0]))), x[1]])
+        returnScore["halfnotes"] = returnScore["halfnotes"].map(x => [transposeNote(x[0], 2*(axis - noteToMidiNumber(x[0]))), x[1], x[2]])
+        returnScore["doublenotes"] = returnScore["doublenotes"].map(x => [transposeNote(x[0], 2*(axis - noteToMidiNumber(x[0]))), x[1]])
+
+        // fix the octave start and number
+        var allOctavesArray = [
+            returnScore["notes"].map(x => parseInt(x[0].slice(x[0].length - 1))),
+            returnScore["halfnotes"].map(x => parseInt(x[0].slice(x[0].length - 1))),
+            returnScore["doublenotes"].map(x => parseInt(x[0].slice(x[0].length - 1)))
+        ].flat()
+
+        if (!allOctavesArray.length){
+            console.log("Nothing to flip")
+            return
+        }
+
+        var minOctave = Math.min(...allOctavesArray)
+        var maxOctave = Math.max(...allOctavesArray)
+
+        returnScore["startOctave"] = minOctave
+        returnScore["octaves"] = Math.max(1 + maxOctave - minOctave, 2)
 
         loadTrack(returnScore)
     }
