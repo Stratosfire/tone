@@ -1,0 +1,326 @@
+:root {
+    --halfNote: rgb(17, 200, 17);
+    --doubleNote: skyblue;
+    --singleNote: #b96ad2;
+    --currentStepGrey: #b9b9b9;
+}
+
+html {
+    font-family: sans-serif;
+    background: #e6e7e8;
+}
+
+body {
+    margin: 0 auto;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 5px 5px 5px lightgrey;
+    position: relative;
+    border-radius: 0.4em;
+}
+
+.card_hidden {
+    height: 5px !important;
+    overflow-y: hidden;
+}
+
+.card_hide_toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1em;
+    height: 1em;
+    margin: 3px;
+    background: lightgray;
+    border-radius: 25% 25% 25% 100%;
+    line-height: 1em;
+}
+
+.card_hidden > div {
+    filter: opacity(0.1);
+}
+
+.card_hidden > .card_hide_toggle {
+    background: grey;
+}
+
+#theGrid {
+    background: #e6e7e8;
+    color: white;
+    text-align: center;
+    user-select: none;
+    table-layout: fixed;
+    /*             contain: strict; */
+}
+
+#theGrid td:first-of-type {
+    background: #5986d9;
+    color: white;
+    font-weight: bold;
+    padding-left: 3px;
+    padding-right: 3px;
+    cursor: default;
+    border-radius: unset;
+}
+
+#theGrid td:first-of-type:hover {
+    box-shadow: unset;
+    background: #5986d9;
+}
+
+#theGrid td:hover {
+    box-shadow: 0px 0px 3px black;
+    background: rgba(255, 255, 255, 0.418);
+}
+
+#theGrid,
+#theGrid td,
+#theGrid tr,
+#theGrid th {
+    border: 1px solid #cfcfcf;
+    border-collapse: collapse;
+    font-family: monospace;
+}
+
+#theGrid td {
+    height: 25px;
+    width: 25px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+#theGrid th {
+    height: 15px;
+    width: 25px;
+    background: lightgray;
+    color: lightgray;
+    cursor: pointer;
+}
+
+#theGrid th:hover {
+    color: black;
+    background: grey;
+}
+
+#theGrid tr:hover {
+    background: rgb(181, 181, 181);
+}
+
+#theGrid tr:nth-child(12n) td {
+    border-bottom: 1px solid #425d90 !important;
+}
+
+#theGrid tr:last-child td {
+    border-bottom: unset !important;
+}
+
+#controls,
+#gridContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    min-width: 450px;
+}
+
+#gridContainer {
+    overflow-x: scroll;
+    align-items: stretch;
+}
+
+button {
+    margin: 3px;
+}
+
+select,
+input {
+    background: white;
+    color: black;
+    box-shadow: 2px 2px 4px #80808080, -2px -2px 4px #ffffff6b;
+    border-radius: 0.4em;
+    border: 1px solid rgb(237, 237, 237);
+    transition: border 0.5s;
+    cursor: pointer;
+    user-select: none;
+    padding: 7px;
+    margin: 3px;
+}
+
+.currentStep {
+    background: var(--currentStepGrey);
+}
+
+#theGrid td.activeCell {
+    background: var(--singleNote);
+}
+
+#theGrid td.activeCellHalf01 {
+    background: linear-gradient(
+        -90deg,
+        var(--halfNote) 0%,
+        var(--halfNote) 50%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+}
+
+#theGrid td.activeCellHalf10 {
+    background: linear-gradient(
+        90deg,
+        var(--halfNote) 0%,
+        var(--halfNote) 50%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+}
+
+#theGrid td.activeCellHalf11 {
+    background: linear-gradient(
+        90deg,
+        var(--halfNote) 0%,
+        var(--halfNote) 49%,
+        black 49%,
+        black 51%,
+        var(--halfNote) 51%,
+        var(--halfNote) 100%
+    );
+}
+
+#theGrid td.activeCellHalf01.currentStep {
+    background: linear-gradient(
+        -90deg,
+        var(--halfNote) 0%,
+        var(--halfNote) 50%,
+        var(--currentStepGrey) 50%,
+        var(--currentStepGrey) 100%
+    );
+}
+
+#theGrid td.activeCellHalf10.currentStep {
+    background: linear-gradient(
+        90deg,
+        var(--halfNote) 0%,
+        var(--halfNote) 50%,
+        var(--currentStepGrey) 50%,
+        var(--currentStepGrey) 100%
+    );
+}
+
+#theGrid td.activeCellDouble {
+    background: var(--doubleNote);
+}
+
+.skeuButton {
+    background: white;
+    color: black;
+    box-shadow: 2px 2px 4px #80808080, -2px -2px 4px #ffffff6b;
+    border-radius: 0.4em;
+    border: 1px solid rgb(237, 237, 237);
+    /* transition: border 0.5s; */
+    cursor: pointer;
+    user-select: none;
+    padding: 7px;
+}
+
+.skeuButton:active {
+    color: darkblue;
+    box-shadow: inset 2px 2px 4px #80808080, inset -2px -2px 4px #ffffff6b;
+}
+
+.skeuButton:disabled {
+    color: lightgray;
+}
+
+.skeuButton:hover {
+    border: 1px solid rgb(217, 217, 217);
+}
+
+#exportDiv textarea {
+    height: 100px;
+    margin: 5px;
+    width: 100%;
+    width: -moz-available;
+    width: -webkit-fill-available;
+    width: fill-available;
+    border-radius: 0.4em;
+}
+
+#exportDiv {
+    display: flex;
+    flex-direction: column;
+}
+
+#loadExportButtonsDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+}
+
+#noteDurationSwitcher {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    width: 30px;
+    height: 30px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.411);
+    border-radius: 10px;
+    border: 7px solid white;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    color: rgba(255, 255, 255, 0);
+    transition: box-shadow 0.3s, color 0.2s;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#noteDurationSwitcher:hover {
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.689);
+    color: white;
+}
+
+#noteDurationSwitcher.double {
+    background: var(--doubleNote);
+}
+
+#noteDurationSwitcher.double::after {
+    content: "2x";
+}
+
+#noteDurationSwitcher.single {
+    background: var(--singleNote);
+}
+
+#noteDurationSwitcher.single::after {
+    content: "1x";
+}
+
+#noteDurationSwitcher.half {
+    background: var(--halfNote);
+}
+
+#noteDurationSwitcher.half::after {
+    content: "½x";
+}
+
+#controls.floating {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+    box-shadow: rgba(74, 74, 74, 0.55) 0px 0px 15px;
+}
