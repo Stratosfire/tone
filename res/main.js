@@ -965,3 +965,107 @@ function read_url_params_and_apply() {
         console.warn("Not impressed with your invalid URL parameters");
     }
 }
+
+function enableMarkerMode() {
+    document.getElementById("markerModeOnBtn").classList.add("activeBtn");
+    document.getElementById("markerModeOffBtn").classList.remove("activeBtn");
+
+    // add event to headers
+    for (var col = 0; col < theGrid.rows[0].cells.length; col++) {
+        var cell = theGrid.rows[0].cells[col];
+        cell.onclick = function () {
+            if (markerArray.length == 2) {
+                markerArray.shift().classList.remove("marker");
+                markerArray.shift().classList.remove("marker");
+
+                // unhighlight any marked cells
+                var colClass = [...theGrid.getElementsByClassName("marked")];
+                colClass.forEach((element) => {
+                    element.classList.remove("marked");
+                });
+
+                return;
+            }
+            this.classList.add("marker");
+            markerArray.push(this);
+
+            if (markerArray.length == 2) {
+                var idx0 = Array.from(markerArray[0].parentNode.children).indexOf(markerArray[0]) - 1;
+                var idx1 = Array.from(markerArray[1].parentNode.children).indexOf(markerArray[1]) - 1;
+
+                for (var i = Math.min(idx0, idx1); i <= Math.max(idx0, idx1); i++) {
+                    // highlight marked cells
+                    var colClass = [...theGrid.getElementsByClassName(`step_${i}`)];
+                    colClass.forEach((element) => {
+                        element.classList.add("marked");
+                    });
+                }
+            }
+        };
+    }
+}
+
+function disableMarkerMode() {
+    loadTrack(getTheScore());
+    markerArray = [];
+    document.getElementById("markerModeOnBtn").classList.remove("activeBtn");
+    document.getElementById("markerModeOffBtn").classList.add("activeBtn");
+}
+
+function copyMarkedCells() {
+    if (markerArray.length == 2) {
+        var idx0 = Array.from(markerArray[0].parentNode.children).indexOf(markerArray[0]) - 1;
+        var idx1 = Array.from(markerArray[1].parentNode.children).indexOf(markerArray[1]) - 1;
+        var leftMostIdx = Math.min(idx0, idx1);
+        var rightMostIdx = Math.max(idx0, idx1);
+        var tempScore = getTheScore();
+
+        // filter to notes in the highlighted region
+        tempScore["notes"] = tempScore["notes"].filter((x) => x[1] >= leftMostIdx && x[1] <= rightMostIdx);
+        tempScore["halfnotes"] = tempScore["halfnotes"].filter((x) => x[1] >= leftMostIdx && x[1] <= rightMostIdx);
+        tempScore["doublenotes"] = tempScore["doublenotes"].filter((x) => x[1] >= leftMostIdx && x[1] <= rightMostIdx);
+
+        // subtract the leftMostIdx from all note positions
+        tempScore["notes"] = tempScore["notes"].map((x) => [x[0], x[1] - leftMostIdx]);
+        tempScore["halfnotes"] = tempScore["halfnotes"].map((x) => [x[0], x[1] - leftMostIdx, x[2]]);
+        tempScore["doublenotes"] = tempScore["doublenotes"].map((x) => [x[0], x[1] - leftMostIdx]);
+
+        copiedNotesObj = {
+            notes: tempScore["notes"],
+            halfnotes: tempScore["halfnotes"],
+            doublenotes: tempScore["doublenotes"],
+            length: rightMostIdx - leftMostIdx,
+        };
+
+        disableMarkerMode();
+        return;
+    } else {
+        console.error("No highlighted region to copy");
+        disableMarkerMode();
+        return;
+    }
+}
+
+function pasteMarkedCells() {
+    if (!copiedNotesObj) {
+        console.error("No copied region to paste");
+        return;
+    }
+
+    disableMarkerMode();
+
+    // insert placeholder for the new notes
+    for (var i = 0; i < copiedNotesObj.length; i++) {
+        insertColAtCurrentPos();
+    }
+
+    var newScore = getTheScore();
+
+    // add new notes into the placeholder
+    // offsetting the new notes by currentStep
+    newScore["notes"].push(...copiedNotesObj["notes"].map((x) => [x[0], x[1] + currentStep]));
+    newScore["halfnotes"].push(...copiedNotesObj["halfnotes"].map((x) => [x[0], x[1] + currentStep, x[2]]));
+    newScore["doublenotes"].push(...copiedNotesObj["doublenotes"].map((x) => [x[0], x[1] + currentStep]));
+
+    loadTrack(newScore);
+}

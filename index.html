@@ -11,16 +11,6 @@
     <script src="res/conway.js" async></script>
     <script src="res/draggable.js" async></script>
     <link rel="stylesheet" href="res/main.css">
-    <style>
-        .marker {
-            background: black !important;
-            color: white !important;
-        }
-        .marked{
-            box-shadow: inset 0px 0px 0px 1px black;
-        }
-    </style>
-
 </head>
 
 <body>
@@ -137,8 +127,15 @@
             <tr>
                 <td>Mark section</td>
                 <td>
-                    <button class="skeuButton" onclick="enableMarkerMode()">On</button>
-                    <button class="skeuButton" onclick="disableMarkerMode()">Off</button>
+                    <button class="skeuButton" onclick="enableMarkerMode()" id="markerModeOnBtn">On</button>
+                    <button class="skeuButton activeBtn" onclick="disableMarkerMode()" id="markerModeOffBtn">Off</button>
+                </td>
+            </tr>
+            <tr>
+                <td>Clipboard</td>
+                <td>
+                    <button class="skeuButton" onclick="copyMarkedCells()">Copy highlighted</button>
+                    <button class="skeuButton" onclick="pasteMarkedCells()">Paste at current step</button>
                 </td>
             </tr>
         </table>
@@ -147,47 +144,6 @@
 </body>
 <script>
     'use strict'
-
-    function enableMarkerMode() {
-        // add event to headers
-        for (var col = 0; col < theGrid.rows[0].cells.length; col++) {
-            var cell = theGrid.rows[0].cells[col];
-            cell.onclick = function () {
-                if (markerArray.length == 2) {
-                    markerArray.shift().classList.remove("marker")
-                    markerArray.shift().classList.remove("marker")
-
-                    // unhighlight any marked cells
-                    var colClass = [...theGrid.getElementsByClassName("marked")];
-                    colClass.forEach((element) => {
-                        element.classList.remove("marked");
-                    });
-
-                    return
-                }
-                this.classList.add("marker")
-                markerArray.push(this)
-
-
-                if (markerArray.length == 2) {
-                    var idx0 = Array.from(markerArray[0].parentNode.children).indexOf(markerArray[0]) - 1
-                    var idx1 = Array.from(markerArray[1].parentNode.children).indexOf(markerArray[1]) - 1
-
-                    for (var i = Math.min(idx0, idx1); i <= Math.max(idx0, idx1); i++) {
-                        // highlight marked cells
-                        var colClass = [...theGrid.getElementsByClassName(`step_${i}`)];
-                        colClass.forEach((element) => {
-                            element.classList.add("marked");
-                        });
-                    }
-                }
-            };
-        }
-    }
-
-    function disableMarkerMode(){
-        loadTrack(getTheScore())
-    }
 
     function init() {
         stepChange(stepCount);
@@ -222,6 +178,7 @@
     var conwayInterval = 500
     var controlDiv = document.getElementById("controls")
     var markerArray = []
+    var copiedNotesObj
 
     // init
     init();

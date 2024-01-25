@@ -324,3 +324,15 @@ input {
     z-index: 100;
     box-shadow: rgba(74, 74, 74, 0.55) 0px 0px 15px;
 }
+
+.marker {
+    background: black !important;
+    color: white !important;
+}
+.marked {
+    box-shadow: inset 0px 0px 0px 1px black;
+}
+.skeuButton.activeBtn {
+    background: #5986d9;
+    color: white;
+}
