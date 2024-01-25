@@ -10,6 +10,7 @@
             --halfNote: rgb(17, 200, 17);
             --doubleNote: skyblue;
             --singleNote: #B96AD2;
+            --currentStepGrey: #b9b9b9;
         }
 
         html {
@@ -165,7 +166,7 @@
         }
 
         .currentStep {
-            background: #b9b9b9;
+            background: var(--currentStepGrey);
         }
 
         #theGrid td.activeCell {
@@ -182,6 +183,14 @@
 
         #theGrid td.activeCellHalf11 {
             background: linear-gradient(90deg, var(--halfNote) 0%, var(--halfNote) 49%, black 49%, black 51%, var(--halfNote) 51%, var(--halfNote) 100%);
+        }
+
+        #theGrid td.activeCellHalf01.currentStep {
+            background: linear-gradient(-90deg, var(--halfNote) 0%, var(--halfNote) 50%, var(--currentStepGrey) 50%, var(--currentStepGrey)  100%);
+        }
+
+        #theGrid td.activeCellHalf10.currentStep {
+            background: linear-gradient(90deg, var(--halfNote) 0%, var(--halfNote) 50%, var(--currentStepGrey)  50%, var(--currentStepGrey)  100%);
         }
 
         #theGrid td.activeCellDouble {
