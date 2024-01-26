@@ -1026,15 +1026,15 @@ function copyMarkedCells() {
         tempScore["doublenotes"] = tempScore["doublenotes"].filter((x) => x[1] >= leftMostIdx && x[1] <= rightMostIdx);
 
         // subtract the leftMostIdx from all note positions
-        tempScore["notes"] = tempScore["notes"].map((x) => [x[0], x[1] - leftMostIdx]);
-        tempScore["halfnotes"] = tempScore["halfnotes"].map((x) => [x[0], x[1] - leftMostIdx, x[2]]);
-        tempScore["doublenotes"] = tempScore["doublenotes"].map((x) => [x[0], x[1] - leftMostIdx]);
+        tempScore["notes"] = tempScore["notes"].map((x) => [x[0], 1 + x[1] - leftMostIdx]);
+        tempScore["halfnotes"] = tempScore["halfnotes"].map((x) => [x[0], 1 + x[1] - leftMostIdx, x[2]]);
+        tempScore["doublenotes"] = tempScore["doublenotes"].map((x) => [x[0], 1 + x[1] - leftMostIdx]);
 
         copiedNotesObj = {
             notes: tempScore["notes"],
             halfnotes: tempScore["halfnotes"],
             doublenotes: tempScore["doublenotes"],
-            length: rightMostIdx - leftMostIdx,
+            length: (rightMostIdx - leftMostIdx)
         };
 
         disableMarkerMode();
@@ -1055,7 +1055,7 @@ function pasteMarkedCells() {
     disableMarkerMode();
 
     // insert placeholder for the new notes
-    for (var i = 0; i < copiedNotesObj.length; i++) {
+    for (var i = 0; i < copiedNotesObj.length+1; i++) {
         insertColAtCurrentPos();
     }
 
@@ -1068,4 +1068,5 @@ function pasteMarkedCells() {
     newScore["doublenotes"].push(...copiedNotesObj["doublenotes"].map((x) => [x[0], x[1] + currentStep]));
 
     loadTrack(newScore);
+    highlightStep(currentStep)
 }
