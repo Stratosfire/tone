@@ -42,7 +42,6 @@
                 </select>
             </div>
             <div>
-                <!-- <button class="skeuButton" onclick="loadTrack(tracks.stillAlive)">Load</button> -->
                 <button class="skeuButton" onclick="clearNotesIfSure()">Clear</button>
                 <div id="trackSelection" style="display: inline-block"></div>
                 <button class="skeuButton" onclick="doLoad()">Load</button>
@@ -94,14 +93,6 @@
                     <button class="skeuButton" onclick="doubleSpace(true)">Double notes</button>
                 </td>
             </tr>
-            <!-- <tr>
-                <td>Note duration</td>
-                <td>
-                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addOnclickToGridCells(); notePickerDuration = 'single'">Whole</button>
-                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addHalfNoteOnclickToGridCells(); notePickerDuration = 'half'">Half</button>
-                    <button class="skeuButton" onclick="removeAllNoteOnclickEvents(); addDoubleNoteOnclickToGridCells(); notePickerDuration = 'double'">Double</button>
-                </td>
-            </tr> -->
             <tr>
                 <td>Attack</td>
                 <td><input type="number" value="1" step="0.01" min="0" max="1" onchange="setAttack(parseFloat(this.value))" /></td>
