@@ -141,6 +141,51 @@
         </table>
     </div>
 
+    <div class="card">
+        <table id="shortcutsTable">
+            <tr>
+                <td>←</td>
+                <td>Step left</td>
+            </tr>
+            <tr>
+                <td>→</td>
+                <td>Step right</td>
+            </tr>
+            <tr>
+                <td>Space</td>
+                <td>Start/Stop playback</td>
+            </tr>
+            <tr>
+                <td>Tab ↹</td>
+                <td>Cycle note duration</td>
+            </tr>
+            <tr>
+                <td>m</td>
+                <td>Toggle section marking</td>
+            </tr>
+            <tr>
+                <td>n</td>
+                <td>Add step to end</td>
+            </tr>
+            <tr>
+                <td>c</td>
+                <td>Copy</td>
+            </tr>
+            <tr>
+                <td>v</td>
+                <td>Paste</td>
+            </tr>
+            <tr>
+                <td>w</td>
+                <td>Toggle wide mode</td>
+            </tr>
+            <tr>
+                <td>i</td>
+                <td>Insert column at current position</td>
+            </tr>
+        </table>
+    </div>
+
 </body>
 <script>
     'use strict'
@@ -153,6 +198,106 @@
         if (doWarn) {
             window.onbeforeunload = function () { return "Your work will be lost."; };
         }
+
+        window.addEventListener("keydown", keyHandler)
+    }
+
+    function keyHandler(e) {
+        function mod(n, m) {
+            return ((n % m) + m) % m;
+        }
+
+        switch (e.key) {
+            case "ArrowRight":
+                e.preventDefault()
+                currentStep = (currentStep + 1) % stepCount;
+                highlightStep(currentStep);
+                break
+            case "ArrowLeft":
+                e.preventDefault()
+                currentStep = mod(currentStep - 1, stepCount);
+                highlightStep(currentStep);
+                break
+            case " ":
+                e.preventDefault()
+                initAudioContext();
+                if (autoStepIntervalIdArray.length) {
+                    stopAutoplay()
+                    modalToast("Stop", 300)
+                }
+                else {
+                    startAutoplay()
+                    modalToast("Play", 300)
+                }
+                break
+            case "Tab":
+                e.preventDefault()
+                cycleNoteDuration();
+                break
+            case "m":
+                e.preventDefault()
+                toggleMarkSection()
+                break
+            case "c":
+                e.preventDefault()
+                modalToast(
+                    copyMarkedCells() ? "No region selected" : "Copy",
+                    300
+                )
+                break
+            case "v":
+                e.preventDefault()
+                modalToast(
+                    pasteMarkedCells() ? "Clipboard is empty" : "Paste",
+                    300
+                )
+                break
+            case "n":
+                e.preventDefault()
+                stepChange(parseInt(document.getElementById("stepSpinner").value) + 1)
+                break
+            case "w":
+                e.preventDefault()
+                wideMode()
+                modalToast(
+                    isWideModeEnabled ? "Wide mode on" : "Wide mode off"
+                )
+                break
+            case "i":
+                e.preventDefault()
+                insertColAtCurrentPos()
+                break
+            default:
+                console.log(e.key)
+        }
+    }
+
+    function modalToast(inputMsg, timeoutMs) {
+        var toastElm = document.createElement("div")
+        timeoutMs = timeoutMs ? timeoutMs : 500
+
+        toastElm.innerHTML = inputMsg
+        toastElm.id = "toastModal"
+        toastElm.style.transition = `opacity ${timeoutMs / 1000}s`
+        document.body.appendChild(toastElm)
+
+        setTimeout(x => x.classList.add("invisible"), timeoutMs, toastElm)
+        setTimeout(x => x.remove(), timeoutMs * 2, toastElm)
+
+    }
+
+    function toggleMarkSection() {
+        var isMarkSectionOn = document.getElementById("markerModeOnBtn").classList.contains("activeBtn");
+
+        if (isMarkSectionOn) {
+            disableMarkerMode()
+            modalToast("Section marking off")
+        }
+        else {
+            enableMarkerMode()
+            modalToast("Section marking on")
+        }
+
     }
 
     // globals

@@ -1043,14 +1043,14 @@ function copyMarkedCells() {
     } else {
         console.error("No highlighted region to copy");
         disableMarkerMode();
-        return;
+        return 1;
     }
 }
 
 function pasteMarkedCells() {
     if (!copiedNotesObj) {
         console.error("No copied region to paste");
-        return;
+        return 1;
     }
 
     disableMarkerMode();

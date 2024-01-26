@@ -336,3 +336,40 @@ input {
     background: #5986d9;
     color: white;
 }
+
+#shortcutsTable td:first-child {
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 5px;
+    background: rgb(239, 239, 239);
+    box-shadow: inset 0px 0px 4px 3px lightgray;
+    text-align: center;
+}
+#shortcutsTable td {
+    padding: 10px;
+}
+
+#toastModal {
+    z-index: 1000;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: white;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.604);
+    opacity: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: x-large;
+    text-align: center;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 10px;
+}
+
+#toastModal.invisible {
+    opacity: 0;
+}
