@@ -1080,8 +1080,8 @@ function keyHandler(e) {
     // don't do anything special if Meta (for macOS) or Ctrl (everyone else)
     // is held - this way we don't break copy/paste by running preventDefault
     // on the c and v keys
-    if (e.getModifierState("Meta") || e.getModifierState("Control")){
-        return
+    if (e.getModifierState("Meta") || e.getModifierState("Control")) {
+        return;
     }
 
     switch (e.key) {
@@ -1135,6 +1135,14 @@ function keyHandler(e) {
             e.preventDefault();
             insertColAtCurrentPos();
             break;
+        case "<":
+            e.preventDefault();
+            highlightStep(-1);
+            break;
+        case "Backspace":
+            e.preventDefault();
+            deleteColAtCurrentPos()
+            break
         default:
             console.log(e.key);
     }
