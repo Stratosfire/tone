@@ -1084,6 +1084,11 @@ function keyHandler(e) {
         return;
     }
 
+    // don't do anything special if any input elements have focus
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)){
+        return
+    }
+
     switch (e.key) {
         case "ArrowRight":
             e.preventDefault();
