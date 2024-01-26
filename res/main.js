@@ -1007,6 +1007,7 @@ function enableMarkerMode() {
 
 function disableMarkerMode() {
     loadTrack(getTheScore());
+    highlightStep(currentStep);
     markerArray = [];
     document.getElementById("markerModeOnBtn").classList.remove("activeBtn");
     document.getElementById("markerModeOffBtn").classList.add("activeBtn");
