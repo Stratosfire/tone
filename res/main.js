@@ -1035,7 +1035,7 @@ function copyMarkedCells() {
             notes: tempScore["notes"],
             halfnotes: tempScore["halfnotes"],
             doublenotes: tempScore["doublenotes"],
-            length: (rightMostIdx - leftMostIdx)
+            length: rightMostIdx - leftMostIdx,
         };
 
         disableMarkerMode();
@@ -1056,7 +1056,7 @@ function pasteMarkedCells() {
     disableMarkerMode();
 
     // insert placeholder for the new notes
-    for (var i = 0; i < copiedNotesObj.length+1; i++) {
+    for (var i = 0; i < copiedNotesObj.length + 1; i++) {
         insertColAtCurrentPos();
     }
 
@@ -1069,5 +1069,91 @@ function pasteMarkedCells() {
     newScore["doublenotes"].push(...copiedNotesObj["doublenotes"].map((x) => [x[0], x[1] + currentStep]));
 
     loadTrack(newScore);
-    highlightStep(currentStep)
+    highlightStep(currentStep);
+}
+
+function keyHandler(e) {
+    function mod(n, m) {
+        return ((n % m) + m) % m;
+    }
+
+    switch (e.key) {
+        case "ArrowRight":
+            e.preventDefault();
+            currentStep = (currentStep + 1) % stepCount;
+            highlightStep(currentStep);
+            break;
+        case "ArrowLeft":
+            e.preventDefault();
+            currentStep = mod(currentStep - 1, stepCount);
+            highlightStep(currentStep);
+            break;
+        case " ":
+            e.preventDefault();
+            initAudioContext();
+            if (autoStepIntervalIdArray.length) {
+                stopAutoplay();
+                modalToast("Stop", 300);
+            } else {
+                startAutoplay();
+                modalToast("Play", 300);
+            }
+            break;
+        case "Tab":
+            e.preventDefault();
+            cycleNoteDuration();
+            break;
+        case "m":
+            e.preventDefault();
+            toggleMarkSection();
+            break;
+        case "c":
+            e.preventDefault();
+            modalToast(copyMarkedCells() ? "No region selected" : "Copy", 300);
+            break;
+        case "v":
+            e.preventDefault();
+            modalToast(pasteMarkedCells() ? "Clipboard is empty" : "Paste", 300);
+            break;
+        case "n":
+            e.preventDefault();
+            stepChange(parseInt(document.getElementById("stepSpinner").value) + 1);
+            break;
+        case "w":
+            e.preventDefault();
+            wideMode();
+            modalToast(isWideModeEnabled ? "Wide mode on" : "Wide mode off");
+            break;
+        case "i":
+            e.preventDefault();
+            insertColAtCurrentPos();
+            break;
+        default:
+            // console.log(e.key);
+    }
+}
+
+function modalToast(inputMsg, timeoutMs) {
+    var toastElm = document.createElement("div");
+    timeoutMs = timeoutMs ? timeoutMs : 500;
+
+    toastElm.innerHTML = inputMsg;
+    toastElm.id = "toastModal";
+    toastElm.style.transition = `opacity ${timeoutMs / 1000}s`;
+    document.body.appendChild(toastElm);
+
+    setTimeout((x) => x.classList.add("invisible"), timeoutMs, toastElm);
+    setTimeout((x) => x.remove(), timeoutMs * 2, toastElm);
+}
+
+function toggleMarkSection() {
+    var isMarkSectionOn = document.getElementById("markerModeOnBtn").classList.contains("activeBtn");
+
+    if (isMarkSectionOn) {
+        disableMarkerMode();
+        modalToast("Section marking off");
+    } else {
+        enableMarkerMode();
+        modalToast("Section marking on");
+    }
 }
