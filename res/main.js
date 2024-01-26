@@ -1077,6 +1077,13 @@ function keyHandler(e) {
         return ((n % m) + m) % m;
     }
 
+    // don't do anything special if Meta (for macOS) or Ctrl (everyone else)
+    // is held - this way we don't break copy/paste by running preventDefault
+    // on the c and v keys
+    if (e.getModifierState("Meta") || e.getModifierState("Control")){
+        return
+    }
+
     switch (e.key) {
         case "ArrowRight":
             e.preventDefault();
@@ -1129,7 +1136,7 @@ function keyHandler(e) {
             insertColAtCurrentPos();
             break;
         default:
-            // console.log(e.key);
+            console.log(e.key);
     }
 }
 
