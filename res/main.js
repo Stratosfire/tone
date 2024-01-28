@@ -1143,6 +1143,7 @@ function keyHandler(e) {
         case "<":
             e.preventDefault();
             highlightStep(-1);
+            modalToast("Jump to start");
             break;
         case "Backspace":
             e.preventDefault();
