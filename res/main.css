@@ -373,3 +373,15 @@ input {
 #toastModal.invisible {
     opacity: 0;
 }
+
+.snapshotRelativeTime{
+    color: grey;
+    font-style: italic;
+    margin-left: 1em;
+    padding: 5px;
+}
+
+.snapshotRelativeTime::after{
+    content: "\a";
+    white-space: pre;
+}

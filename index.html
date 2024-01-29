@@ -185,6 +185,11 @@
         </table>
     </div>
 
+    <div id="snapshots" class="card card_hidden">
+        <span class='card_hide_toggle' onclick='hideCard(this)'></span>
+        <p>Snapshot history</p>
+    </div>
+
 </body>
 <script>
     'use strict'
@@ -200,6 +205,47 @@
 
         window.addEventListener("keydown", keyHandler)
     }
+
+    function takeSnapshot(){
+        // don't take snapshots while playing
+        if (autoStepIntervalIdArray.length){
+            return
+        }
+
+        modalToast("Saving...")
+
+        const nowTime = new Date()
+
+        var snapshotRadio = document.createElement("input")
+        var snapshotRadioLabel = document.createElement("label") // absolute time
+        var snapshotRadioLabelRelative = document.createElement("span") // relative time
+        snapshotRadio.setAttribute("type", "radio")
+        snapshotRadio.setAttribute("name", "snapshot")
+        snapshotRadio.setAttribute("value", nowTime.getTime())
+        snapshotRadio.onclick = function(){download(`snapshot_${nowTime.toISOString().replaceAll(":", "")}.json`, JSON.stringify(snapshotArray.filter(x => x[0] == nowTime)[0][1]))}
+        snapshotRadioLabel.setAttribute("for", nowTime.getTime())
+        snapshotRadioLabel.innerHTML = nowTime.toLocaleTimeString()
+        snapshotRadioLabelRelative.classList.add("snapshotRelativeTime")
+
+        snapshotRadioLabel.appendChild(snapshotRadioLabelRelative)
+        
+        snapshotArray.push(
+            [nowTime, getTheScore(), [snapshotRadio, snapshotRadioLabel, snapshotRadioLabelRelative]]
+        )
+
+        if (snapshotArray.length > snapshotArrayMax){
+            snapshotArray.shift()[2].map(x => x.remove())
+        }
+
+        const snapshotsDiv = document.getElementById("snapshots")
+        snapshotsDiv.appendChild(snapshotRadio)
+        snapshotsDiv.appendChild(snapshotRadioLabel)
+
+        // update minutes ago
+        snapshotArray.forEach(x => x[2][2].innerHTML = `${Math.round((nowTime - x[0]) / 1000 / 60)} minute(s) ago`)
+    }
+
+
 
     // globals
     var numberOfOctaves = 2
@@ -225,6 +271,10 @@
     var controlDiv = document.getElementById("controls")
     var markerArray = []
     var copiedNotesObj
+    var snapshotArray = []
+    var snapshotFrequencyMins = 1
+    var snapshotArrayMax = 5
+    var snapshotIntervalId = setInterval(takeSnapshot, snapshotFrequencyMins*60*1000)
 
     // init
     init();
