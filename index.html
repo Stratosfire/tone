@@ -238,6 +238,7 @@
     var snapshotFrequencyMins = 1
     var snapshotArrayMax = 5
     var snapshotIntervalId = setInterval(takeSnapshot, snapshotFrequencyMins*60*1000)
+    var inhibitDarkModeToggle
 
     // init
     init();

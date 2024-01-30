@@ -1155,7 +1155,13 @@ function keyHandler(e) {
             break;
         case "d":
             e.preventDefault();
+            if (inhibitDarkModeToggle){
+                modalToast("Slow down!")
+                break
+            }
             modalToast(`Darkmode ${toggleDarkMode() ? "enabled": "disabled"}`);
+            inhibitDarkModeToggle = true
+            setTimeout(function(){inhibitDarkModeToggle = false}, 400)
             break;
         default:
             console.log(e.key);
