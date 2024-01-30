@@ -961,6 +961,10 @@ function read_url_params_and_apply() {
         if (nowarn) {
             doWarn = false;
         }
+        var darkmode = parseInt(url.searchParams.get("darkmode"));
+        if (darkmode) {
+            toggleDarkMode()
+        }
     } catch {
         console.warn("Not impressed with your invalid URL parameters");
     }
@@ -1085,8 +1089,8 @@ function keyHandler(e) {
     }
 
     // don't do anything special if any input elements have focus
-    if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)){
-        return
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {
+        return;
     }
 
     switch (e.key) {
@@ -1147,8 +1151,12 @@ function keyHandler(e) {
             break;
         case "Backspace":
             e.preventDefault();
-            deleteColAtCurrentPos()
-            break
+            deleteColAtCurrentPos();
+            break;
+        case "d":
+            e.preventDefault();
+            modalToast(`Darkmode ${toggleDarkMode() ? "enabled": "disabled"}`);
+            break;
         default:
             console.log(e.key);
     }
@@ -1176,5 +1184,65 @@ function toggleMarkSection() {
     } else {
         enableMarkerMode();
         modalToast("Section marking on");
+    }
+}
+
+function takeSnapshot() {
+    // don't take snapshots while playing
+    if (autoStepIntervalIdArray.length) {
+        return;
+    }
+
+    modalToast("Saving...");
+
+    const nowTime = new Date();
+
+    var snapshotRadio = document.createElement("input");
+    var snapshotRadioLabel = document.createElement("label"); // absolute time
+    var snapshotRadioLabelRelative = document.createElement("span"); // relative time
+    snapshotRadio.setAttribute("type", "radio");
+    snapshotRadio.setAttribute("name", "snapshot");
+    snapshotRadio.setAttribute("value", nowTime.getTime());
+    snapshotRadio.onclick = function () {
+        download(
+            `snapshot_${nowTime.toISOString().replaceAll(":", "")}.json`,
+            JSON.stringify(snapshotArray.filter((x) => x[0] == nowTime)[0][1])
+        );
+    };
+    snapshotRadioLabel.setAttribute("for", nowTime.getTime());
+    snapshotRadioLabel.innerHTML = nowTime.toLocaleTimeString();
+    snapshotRadioLabelRelative.classList.add("snapshotRelativeTime");
+
+    snapshotRadioLabel.appendChild(snapshotRadioLabelRelative);
+
+    snapshotArray.push([nowTime, getTheScore(), [snapshotRadio, snapshotRadioLabel, snapshotRadioLabelRelative]]);
+
+    if (snapshotArray.length > snapshotArrayMax) {
+        snapshotArray.shift()[2].map((x) => x.remove());
+    }
+
+    const snapshotsDiv = document.getElementById("snapshots");
+    snapshotsDiv.appendChild(snapshotRadio);
+    snapshotsDiv.appendChild(snapshotRadioLabel);
+
+    // update minutes ago
+    snapshotArray.forEach((x) => (x[2][2].innerHTML = `${Math.round((nowTime - x[0]) / 1000 / 60)} minute(s) ago`));
+}
+
+function toggleDarkMode() {
+    var darkmodeElm = document.getElementById("darkmodeCSS");
+
+    if (darkmodeElm) {
+        darkmodeElm.remove();
+        window.history.replaceState(null, null, "?darkmode=0");
+        return 0
+    } else {
+        darkmodeElm = document.createElement("link");
+        darkmodeElm.setAttribute("rel", "stylesheet");
+        darkmodeElm.setAttribute("href", "res/main_laserwave.css");
+        darkmodeElm.id = "darkmodeCSS";
+        document.body.appendChild(darkmodeElm);
+        window.history.replaceState(null, null, "?darkmode=1");
+        return 1
     }
 }
