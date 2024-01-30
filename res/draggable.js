@@ -1,13 +1,14 @@
 "use strict";
 
+var card_pos1 = 0,
+    card_pos2 = 0,
+    card_pos3 = 0,
+    card_pos4 = 0;
+
 // https://www.w3schools.com/howto/howto_js_draggable.asp
 // w3schools to the rescue yet again
 // Make the DIV element draggable:
 function dragElement(elmnt) {
-    var pos1 = 0,
-        pos2 = 0,
-        pos3 = 0,
-        pos4 = 0;
     if (document.getElementById(elmnt.id).getElementsByClassName("titlebar")[0]) {
         // if present, the titlebar is where you move the DIV from:
         document.getElementById(elmnt.id).getElementsByClassName("titlebar")[0].onmousedown = dragMouseDown;
@@ -21,8 +22,8 @@ function dragMouseDown(e) {
     e = e || window.event;
     e.preventDefault();
     // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
+    card_pos3 = e.clientX;
+    card_pos4 = e.clientY;
     document.onmouseup = closeDragElement;
     // call a function whenever the cursor moves:
     document.onmousemove = elementDrag;
@@ -32,13 +33,13 @@ function elementDrag(e) {
     e = e || window.event;
     e.preventDefault();
     // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
+    card_pos1 = card_pos3 - e.clientX;
+    card_pos2 = card_pos4 - e.clientY;
+    card_pos3 = e.clientX;
+    card_pos4 = e.clientY;
     // set the element's new position:
-    controlDiv.style.top = controlDiv.offsetTop - pos2 + "px";
-    controlDiv.style.left = controlDiv.offsetLeft - pos1 + "px";
+    controlDiv.style.top = controlDiv.offsetTop - card_pos2 + "px";
+    controlDiv.style.left = controlDiv.offsetLeft - card_pos1 + "px";
 }
 
 function closeDragElement() {
