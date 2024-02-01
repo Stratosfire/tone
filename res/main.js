@@ -397,6 +397,8 @@ function loadTrack(trackData, noStepChange) {
     var waveform = trackData["waveform"];
     var octaves = Object.keys(trackData).includes("octaves") ? trackData["octaves"] : 2;
     var octaveStart = Object.keys(trackData).includes("startOctave") ? trackData["startOctave"] : 3;
+    var favicon = Object.keys(trackData).includes("favicon") ? trackData["favicon"] : false
+    var faviconAlpha = Object.keys(trackData).includes("faviconAlpha") ? trackData["faviconAlpha"] : false
 
     if (!notesArray) {
         console.warn("No notes in trackData");
@@ -461,6 +463,11 @@ function loadTrack(trackData, noStepChange) {
     // waveform
     document.getElementById("waveformSelection").value = waveform;
     changeWaveform(waveform);
+
+    // set favicon if present
+    if (favicon){
+        setFavicon(favicon, faviconAlpha)
+    }
 }
 
 function initAudioContext() {
@@ -963,7 +970,7 @@ function read_url_params_and_apply() {
         }
         var darkmode = parseInt(url.searchParams.get("darkmode"));
         if (darkmode) {
-            toggleDarkMode()
+            toggleDarkMode();
         }
     } catch {
         console.warn("Not impressed with your invalid URL parameters");
@@ -1155,13 +1162,15 @@ function keyHandler(e) {
             break;
         case "d":
             e.preventDefault();
-            if (inhibitDarkModeToggle){
-                modalToast("Slow down!")
-                break
+            if (inhibitDarkModeToggle) {
+                modalToast("Slow down!");
+                break;
             }
-            modalToast(`Darkmode ${toggleDarkMode() ? "enabled": "disabled"}`);
-            inhibitDarkModeToggle = true
-            setTimeout(function(){inhibitDarkModeToggle = false}, 400)
+            modalToast(`Darkmode ${toggleDarkMode() ? "enabled" : "disabled"}`);
+            inhibitDarkModeToggle = true;
+            setTimeout(function () {
+                inhibitDarkModeToggle = false;
+            }, 400);
             break;
         default:
             console.log(e.key);
@@ -1241,7 +1250,7 @@ function toggleDarkMode() {
     if (darkmodeElm) {
         darkmodeElm.remove();
         window.history.replaceState(null, null, "?darkmode=0");
-        return 0
+        return 0;
     } else {
         darkmodeElm = document.createElement("link");
         darkmodeElm.setAttribute("rel", "stylesheet");
@@ -1249,6 +1258,59 @@ function toggleDarkMode() {
         darkmodeElm.id = "darkmodeCSS";
         document.body.appendChild(darkmodeElm);
         window.history.replaceState(null, null, "?darkmode=1");
-        return 1
+        return 1;
     }
+}
+
+function setFavicon(patternUrl, alphaUrl) {
+    `
+    Takes an ashe.org.uk/grid URL as input
+    Optional alpha channel in the same format
+    `
+    // parse URLs
+    const params = new URLSearchParams(new URL(patternUrl).searchParams);
+    const paramsAlpha = alphaUrl ? new URLSearchParams(new URL(alphaUrl).searchParams) : false;
+    const width = parseInt(params.get("width"));
+    const height = parseInt(params.get("height"));
+
+    // init canvas
+    canvas.width = width;
+    canvas.height = height;
+
+    // create ImageData object
+    var imgData = ctx.createImageData(width, height);
+
+    // prepare alpha channel
+    // if not given, set alpha to 255 for all pixels
+    var alphaArray = paramsAlpha
+        ? paramsAlpha
+              .get("pattern")
+              .split("")
+              .map((x) => (parseInt(x) ? 255 : 0))
+        : Array(width * height).fill(255);
+
+    // write pixels to object
+    imgData.data.set(
+        params
+            .get("pattern")
+            .split("")
+            .map((x, i) => (parseInt(x) ? [0, 0, 0, alphaArray[i]] : [255, 255, 255, alphaArray[i]]))
+            .flat()
+    );
+
+    // push pixels to canvas
+    ctx.putImageData(imgData, 0, 0);
+
+    // convert canvas data to dataURL
+    const dataURL = canvas.toDataURL("image/png");
+
+    // set as favicon
+    var favicon = document.createElement("link");
+    favicon.setAttribute("rel", "icon");
+    favicon.setAttribute("href", dataURL);
+    favicon.id = "favicon";
+    while (document.getElementById("favicon")) {
+        document.getElementById("favicon").remove();
+    }
+    document.body.appendChild(favicon);
 }

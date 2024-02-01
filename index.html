@@ -194,6 +194,8 @@
         <p>Snapshot history</p>
     </div>
 
+    <canvas id="faviconCanvas" style="display: none;"></canvas>
+
 </body>
 <script>
     'use strict'
@@ -239,6 +241,8 @@
     var snapshotArrayMax = 5
     var snapshotIntervalId = setInterval(takeSnapshot, snapshotFrequencyMins*60*1000)
     var inhibitDarkModeToggle
+    const canvas = document.getElementById('faviconCanvas')
+    var ctx = canvas.getContext("2d");
 
     // init
     init();
