@@ -1270,8 +1270,8 @@ function setFavicon(patternUrl, alphaUrl) {
     // parse URLs
     const params = new URLSearchParams(new URL(patternUrl).searchParams);
     const paramsAlpha = alphaUrl ? new URLSearchParams(new URL(alphaUrl).searchParams) : false;
-    const width = parseInt(params.get("width"));
-    const height = parseInt(params.get("height"));
+    const width = params.has("width") ? parseInt(params.get("width")) : 8
+    const height = params.has("height") ? parseInt(params.get("height")): 8;
 
     // init canvas
     canvas.width = width;
