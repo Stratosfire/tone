@@ -335,6 +335,8 @@ var tracks = {
         "waveform":"triangle",
         "octaves":6,
         "startOctave":1,
+	"favicon": "http://ashe.org.uk/grid?pattern=0000000000000000000000110011000011001100000011000000011110000001111000000100100000000000000000000000&width=10&height=10&primary=0059c3&secondary=fecb00",
+	"faviconAlpha": "https://ashe.org.uk/grid?pattern=0000000000000000000000111111000011111100001111110000111111000011111100001111110000000000000000000000&width=10&height=10",
         "metadata": {
             "category": "Videogame"
         }
