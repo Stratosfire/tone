@@ -468,6 +468,12 @@ function loadTrack(trackData, noStepChange) {
     if (favicon) {
         setFavicon(favicon, faviconAlpha);
     }
+    else{
+        while (document.getElementById("favicon")){
+            document.getElementById("favicon").remove()
+        }
+        setFavicon(defaultFavicon, defaultFaviconAlpha)
+    }
 }
 
 function initAudioContext() {
