@@ -397,8 +397,8 @@ function loadTrack(trackData, noStepChange) {
     var waveform = trackData["waveform"];
     var octaves = Object.keys(trackData).includes("octaves") ? trackData["octaves"] : 2;
     var octaveStart = Object.keys(trackData).includes("startOctave") ? trackData["startOctave"] : 3;
-    var favicon = Object.keys(trackData).includes("favicon") ? trackData["favicon"] : false
-    var faviconAlpha = Object.keys(trackData).includes("faviconAlpha") ? trackData["faviconAlpha"] : false
+    var favicon = Object.keys(trackData).includes("favicon") ? trackData["favicon"] : false;
+    var faviconAlpha = Object.keys(trackData).includes("faviconAlpha") ? trackData["faviconAlpha"] : false;
 
     if (!notesArray) {
         console.warn("No notes in trackData");
@@ -465,8 +465,8 @@ function loadTrack(trackData, noStepChange) {
     changeWaveform(waveform);
 
     // set favicon if present
-    if (favicon){
-        setFavicon(favicon, faviconAlpha)
+    if (favicon) {
+        setFavicon(favicon, faviconAlpha);
     }
 }
 
@@ -1262,16 +1262,27 @@ function toggleDarkMode() {
     }
 }
 
+function hexToRGB(inputHex) {
+    var rawHex = inputHex.replace("#", "");
+    var red = parseInt(rawHex.slice(0, 2), 16);
+    var green = parseInt(rawHex.slice(2, 4), 16);
+    var blue = parseInt(rawHex.slice(4, 6), 16);
+
+    return [red, green, blue];
+}
+
 function setFavicon(patternUrl, alphaUrl) {
     `
     Takes an ashe.org.uk/grid URL as input
     Optional alpha channel in the same format
-    `
+    `;
     // parse URLs
     const params = new URLSearchParams(new URL(patternUrl).searchParams);
     const paramsAlpha = alphaUrl ? new URLSearchParams(new URL(alphaUrl).searchParams) : false;
-    const width = params.has("width") ? parseInt(params.get("width")) : 8
-    const height = params.has("height") ? parseInt(params.get("height")): 8;
+    const width = params.has("width") ? parseInt(params.get("width")) : 8;
+    const height = params.has("height") ? parseInt(params.get("height")) : 8;
+    var primaryCol = params.has("primary") ? hexToRGB(params.get("primary")) : [255, 255, 255];
+    var secondaryCol = params.has("secondary") ? hexToRGB(params.get("secondary")) : [0, 0, 0];
 
     // init canvas
     canvas.width = width;
@@ -1294,7 +1305,7 @@ function setFavicon(patternUrl, alphaUrl) {
         params
             .get("pattern")
             .split("")
-            .map((x, i) => (parseInt(x) ? [0, 0, 0, alphaArray[i]] : [255, 255, 255, alphaArray[i]]))
+            .map((x, i) => (parseInt(x) ? [...secondaryCol, alphaArray[i]] : [...primaryCol, alphaArray[i]]))
             .flat()
     );
 
