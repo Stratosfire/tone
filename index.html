@@ -11,6 +11,53 @@
     <script src="res/conway.js" async></script>
     <script src="res/draggable.js" async></script>
     <link rel="stylesheet" href="res/main.css">
+    <style>
+        #fancyTrackTable,
+        #fancyTrackTable td,
+        #fancyTrackTable th,
+        #fancyTrackTable tr {
+            border-collapse: collapse;
+            border: 1px solid white;
+            border-radius: 1em;
+        }
+
+        #fancyTrackTable td {
+            padding: 5px;
+        }
+
+        #fancyTrackTable th {
+            padding: 2px;
+            text-align: left;
+        }
+
+        #fancyTrackTable th::first-letter {
+            text-transform: capitalize;
+        }
+
+        #fancyTrackTable img {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+        }
+
+        #fancyTrackTable td span.uncategorised {
+            font-style: italic;
+            color: grey;
+        }
+
+        #fancyTrackTable tr:nth-child(even) {
+            background: rgb(240, 240, 240);
+        }
+
+        #fancyTrackTable tr td:nth-child(2) {
+            font-weight: bold;
+        }
+        #fancyTrackTable tr:hover {
+            background: var(--doubleNote);
+            cursor: pointer;
+        }
+
+    </style>
 </head>
 
 <body>
@@ -211,6 +258,76 @@
         }
 
         window.addEventListener("keydown", keyHandler)
+
+        // initFancyTrackSelection()
+    }
+
+    function initFancyTrackSelection() {
+        var fancyData = []
+        var metadataFields = new Set()
+
+        // get all the metadata fields
+        for (var t in tracks) {
+            var data = tracks[t]
+            if (Object.keys(data).includes("metadata")) {
+                Object.keys(data["metadata"]).forEach(x => metadataFields.add(x))
+            }
+        }
+
+        metadataFields = Array.from(metadataFields)
+
+        fancyData.push([, "Title", ...metadataFields])
+
+        // add metadata to list of lists
+        for (var t in tracks) {
+            var data = tracks[t]
+            var tempArray = []
+
+            // favicon (only set default alpha if we need to)
+            var patternUrl = Object.keys(data).includes("favicon") ? data["favicon"] : defaultFavicon
+            var alphaUrl = Object.keys(data).includes("favicon") && Object.keys(data).includes("faviconAlpha") ? data["faviconAlpha"] : Object.keys(data).includes("favicon") ? undefined : defaultFaviconAlpha
+            var faviconDataUrl = gridUrlToDataUrl(patternUrl, alphaUrl)
+            var faviconElm = document.createElement("img")
+            faviconElm.src = faviconDataUrl
+            faviconElm.classList.add("trackIcon")
+            tempArray.push(faviconElm.outerHTML)
+
+            // track title
+            tempArray.push(t)
+
+            // metadata
+            if (Object.keys(data).includes("metadata")) {
+                for (var i = 0; i < metadataFields.length; i++) {
+                    var tempMeta = data["metadata"][metadataFields[i]]
+                    tempArray.push(tempMeta ? tempMeta : "-")
+                }
+            }
+            else {
+                for (var i = 0; i < metadataFields.length; i++) {
+                    tempArray.push(metadataFields[i] == "category" ? "<span class='uncategorised'>uncategorised</span>" : "-")
+                }
+            }
+
+            fancyData.push(tempArray)
+        }
+
+        // put all the fancy data into a table
+        var fancyTrackTable = document.createElement("table")
+        var headerRow = document.createElement("tr")
+        fancyTrackTable.id = "fancyTrackTable"
+        headerRow.innerHTML = "<th>" + fancyData[0].join("</th><th>") + "</th>"
+        fancyTrackTable.appendChild(headerRow)
+        for (var i = 1; i < fancyData.length; i++) {
+            var tempRow = document.createElement("tr")
+            tempRow.innerHTML = "<td>" + fancyData[i].join("</td><td>") + "</td>"
+            fancyTrackTable.appendChild(tempRow)
+        }
+
+        // put the fancy table in a card and append
+        var newCard = document.createElement("div")
+        newCard.classList.add("card")
+        newCard.appendChild(fancyTrackTable)
+        document.body.appendChild(newCard)
     }
 
     // globals
@@ -240,7 +357,7 @@
     var snapshotArray = []
     var snapshotFrequencyMins = 1
     var snapshotArrayMax = 5
-    var snapshotIntervalId = setInterval(takeSnapshot, snapshotFrequencyMins*60*1000)
+    var snapshotIntervalId = setInterval(takeSnapshot, snapshotFrequencyMins * 60 * 1000)
     var inhibitDarkModeToggle
     const canvas = document.getElementById('faviconCanvas')
     var ctx = canvas.getContext("2d");

@@ -1282,11 +1282,30 @@ function setFavicon(patternUrl, alphaUrl) {
     Takes an ashe.org.uk/grid URL as input
     Optional alpha channel in the same format
     `;
+    
+    const dataURL = gridUrlToDataUrl(patternUrl, alphaUrl)
+
+    // set as favicon
+    var favicon = document.createElement("link");
+    favicon.setAttribute("rel", "icon");
+    favicon.setAttribute("href", dataURL);
+    favicon.id = "favicon";
+    while (document.getElementById("favicon")) {
+        document.getElementById("favicon").remove();
+    }
+    document.body.appendChild(favicon);
+}
+
+function gridUrlToDataUrl(patternUrl, alphaUrl){
+    `
+    Takes an ashe.org.uk/grid URL as input
+    Optional alpha channel in the same format
+    `
     // parse URLs
     const params = new URLSearchParams(new URL(patternUrl).searchParams);
     const paramsAlpha = alphaUrl ? new URLSearchParams(new URL(alphaUrl).searchParams) : false;
-    const width = params.has("width") ? parseInt(params.get("width")) : 8;
-    const height = params.has("height") ? parseInt(params.get("height")) : 8;
+    var width = params.has("width") ? parseInt(params.get("width")) : 8;
+    var height = params.has("height") ? parseInt(params.get("height")) : 8;
     var primaryCol = params.has("primary") ? hexToRGB(params.get("primary")) : [255, 255, 255];
     var secondaryCol = params.has("secondary") ? hexToRGB(params.get("secondary")) : [0, 0, 0];
 
@@ -1321,13 +1340,5 @@ function setFavicon(patternUrl, alphaUrl) {
     // convert canvas data to dataURL
     const dataURL = canvas.toDataURL("image/png");
 
-    // set as favicon
-    var favicon = document.createElement("link");
-    favicon.setAttribute("rel", "icon");
-    favicon.setAttribute("href", dataURL);
-    favicon.id = "favicon";
-    while (document.getElementById("favicon")) {
-        document.getElementById("favicon").remove();
-    }
-    document.body.appendChild(favicon);
+    return dataURL
 }
