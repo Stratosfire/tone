@@ -467,12 +467,11 @@ function loadTrack(trackData, noStepChange) {
     // set favicon if present
     if (favicon) {
         setFavicon(favicon, faviconAlpha);
-    }
-    else{
-        while (document.getElementById("favicon")){
-            document.getElementById("favicon").remove()
+    } else {
+        while (document.getElementById("favicon")) {
+            document.getElementById("favicon").remove();
         }
-        setFavicon(defaultFavicon, defaultFaviconAlpha)
+        setFavicon(defaultFavicon, defaultFaviconAlpha);
     }
 }
 
@@ -1282,8 +1281,8 @@ function setFavicon(patternUrl, alphaUrl) {
     Takes an ashe.org.uk/grid URL as input
     Optional alpha channel in the same format
     `;
-    
-    const dataURL = gridUrlToDataUrl(patternUrl, alphaUrl)
+
+    const dataURL = gridUrlToDataUrl(patternUrl, alphaUrl);
 
     // set as favicon
     var favicon = document.createElement("link");
@@ -1296,11 +1295,11 @@ function setFavicon(patternUrl, alphaUrl) {
     document.body.appendChild(favicon);
 }
 
-function gridUrlToDataUrl(patternUrl, alphaUrl){
+function gridUrlToDataUrl(patternUrl, alphaUrl) {
     `
     Takes an ashe.org.uk/grid URL as input
     Optional alpha channel in the same format
-    `
+    `;
     // parse URLs
     const params = new URLSearchParams(new URL(patternUrl).searchParams);
     const paramsAlpha = alphaUrl ? new URLSearchParams(new URL(alphaUrl).searchParams) : false;
@@ -1340,5 +1339,157 @@ function gridUrlToDataUrl(patternUrl, alphaUrl){
     // convert canvas data to dataURL
     const dataURL = canvas.toDataURL("image/png");
 
-    return dataURL
+    return dataURL;
+}
+
+function initFancyTrackSelection() {
+    var fancyData = [];
+    var metadataFields = new Set();
+    var categories = new Set();
+
+    // sort tracks by tracknames
+    tracks = Object.keys(tracks)
+        .sort()
+        .reduce((obj, key) => {
+            obj[key] = tracks[key];
+            return obj;
+        }, {});
+
+    // add calculated metadata fields
+    for (var t in tracks) {
+        var data = tracks[t];
+
+        // init metadata if needs be
+        if (!Object.keys(data).includes("metadata")) {
+            data["metadata"] = { category: "uncategorised" };
+        }
+
+        // noteCount
+        var noteCount = data["notes"].length;
+        if (Object.keys(data).includes("doublenotes")) {
+            noteCount + data["doublenotes"].length;
+        }
+        if (Object.keys(data).includes("halfnotes")) {
+            noteCount + data["halfnotes"].length;
+        }
+
+        data.metadata.noteCount = noteCount;
+
+        // bpm
+        var bpm = Math.round(60 / data["duration"]);
+        data.metadata.bpm = bpm;
+
+        // actual duration
+        var actualDuration = Math.round(data["duration"] * data["steps"]); // seconds
+        actualDuration = actualDuration < 60 ? `${actualDuration}s` : secondsToMins(actualDuration);
+        data.metadata.actualDuration = actualDuration;
+    }
+
+    // get all the metadata fields
+    for (var t in tracks) {
+        var data = tracks[t];
+        if (Object.keys(data).includes("metadata")) {
+            Object.keys(data["metadata"]).forEach((x) => metadataFields.add(x));
+        }
+    }
+
+    metadataFields = ["faviconContainer", "trackTitle", ...Array.from(metadataFields)];
+    // get all categories
+    for (var t in tracks) {
+        var data = tracks[t];
+        if (Object.keys(data).includes("metadata")) {
+            categories.add(data.metadata.category);
+        }
+    }
+
+    // delete uncategorised and re-add it to the end of a sorted array
+    categories.delete("uncategorised");
+    categories = [...Array.from(categories).toSorted(), "uncategorised"];
+
+    for (var t in tracks) {
+        var data = tracks[t];
+        var tempArray = [];
+
+        // favicon (only set default alpha if we need to)
+        var patternUrl = Object.keys(data).includes("favicon") ? data["favicon"] : defaultFavicon;
+        var alphaUrl =
+            Object.keys(data).includes("favicon") && Object.keys(data).includes("faviconAlpha")
+                ? data["faviconAlpha"]
+                : Object.keys(data).includes("favicon")
+                ? undefined
+                : defaultFaviconAlpha;
+        var faviconDataUrl = gridUrlToDataUrl(patternUrl, alphaUrl);
+        var faviconElm = document.createElement("img");
+        faviconElm.src = faviconDataUrl;
+        faviconElm.classList.add("trackIcon");
+        tempArray.push(faviconElm.outerHTML);
+
+        // track title
+        tempArray.push(t);
+
+        // metadata
+        if (Object.keys(data).includes("metadata")) {
+            for (var i = 2; i < metadataFields.length; i++) {
+                var tempMeta = data["metadata"][metadataFields[i]];
+                tempArray.push(tempMeta ? tempMeta : "");
+            }
+        } else {
+            for (var i = 2; i < metadataFields.length; i++) {
+                tempArray.push(metadataFields[i] == "category" ? "uncategorised" : "");
+            }
+        }
+
+        fancyData.push(tempArray);
+    }
+
+    // put all the fancy data into a table
+    var trackCardContainerElm = document.createElement("div");
+    trackCardContainerElm.id = "trackCardContainer";
+
+    var trackCardsByCategory = {};
+    categories.forEach((x) => (trackCardsByCategory[x] = [])); // init
+
+    for (var i = 0; i < fancyData.length; i++) {
+        var trackCardElm = document.createElement("div");
+        trackCardElm.classList.add("trackCard");
+        trackCardElm.innerHTML = fancyData[i]
+            .map((x, i) => [x, `<div class="tc_${metadataFields[i]}">${x}</div>`])
+            .filter((x) => x[0].toString().length)
+            .map((x) => x[1])
+            .join("");
+        trackCardElm.dataset["trackName"] = fancyData[i][1];
+        trackCardElm.onclick = function () {
+            playTrackByName(this.dataset.trackName);
+        };
+        trackCardsByCategory[fancyData[i][2]].push(trackCardElm);
+    }
+
+    for (var i = 0; i < categories.length; i++) {
+        var sectionHeaderElm = document.createElement("div");
+        sectionHeaderElm.classList.add("tc_categorySection");
+        sectionHeaderElm.innerHTML = categories[i];
+        trackCardContainerElm.appendChild(sectionHeaderElm);
+
+        trackCardsByCategory[categories[i]].forEach((x) => trackCardContainerElm.appendChild(x));
+    }
+
+    // put the fancy table in a card and append
+    var newCard = document.createElement("div");
+    newCard.classList.add("card");
+    newCard.appendChild(trackCardContainerElm);
+    document.body.appendChild(newCard);
+}
+
+function secondsToMins(inputSeconds) {
+    var minutes = Math.floor(inputSeconds / 60);
+    var seconds = inputSeconds % 60;
+    return `${minutes}m ${seconds}s`;
+}
+
+function playTrackByName(inputTrackName) {
+    initAudioContext();
+    highlightStep(-1);
+    document.querySelectorAll("#trackSelection option").forEach((x) => (x.selected = x.value == inputTrackName));
+    loadTrack(tracks[inputTrackName]);
+    startAutoplay();
 }

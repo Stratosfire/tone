@@ -3,6 +3,8 @@
     --doubleNote: skyblue;
     --singleNote: #b96ad2;
     --currentStepGrey: #b9b9b9;
+    --firstColFg: #3f2f55;
+    --firstColBg: #cb64a9;
 }
 
 html {
@@ -67,7 +69,7 @@ body {
 }
 
 #theGrid td:first-of-type {
-    background: #cb64a9;
+    background: var(--firstColBg);
     color: #232028;
     font-weight: bold;
     padding-left: 3px;
@@ -90,7 +92,7 @@ body {
 #theGrid td,
 #theGrid tr,
 #theGrid th {
-    border: 1px solid #3f2f55;
+    border: 1px solid var(--firstColFg);
     border-collapse: collapse;
     font-family: monospace;
 }
@@ -389,4 +391,25 @@ input {
 .snapshotRelativeTime::after{
     content: "\a";
     white-space: pre;
+}
+
+#trackCardContainer > div.tc_categorySection{
+    background: var(--firstColBg);
+    color: var(--firstColFg);
+}
+
+.trackCard {
+    box-shadow: 0px 0px 4px #68656c;
+    border: 1px solid #68656c;
+}
+
+.trackCard:hover {
+    border: 1px solid rgb(217, 217, 217);
+    background: unset;
+}
+
+.trackCard:active {
+    color: white;
+    box-shadow: inset 2px 2px 4px #80808080, inset -2px -2px 4px #ffffff6b;
+    background: unset;
 }
