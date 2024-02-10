@@ -796,7 +796,7 @@ function wideMode() {
         controlsDiv.style.flexDirection = "row";
         controlsDiv.style.alignItems = "center";
         document.body.style.maxWidth = "calc(100vw - 30px)";
-        [...document.getElementsByClassName("tc_categorySection")].forEach(x => x.style.gridColumn = "1 / span 4")
+        [...document.getElementsByClassName("tc_categorySection")].forEach((x) => (x.style.gridColumn = "1 / span 4"));
         window.history.replaceState(null, null, "?wide=1");
         isWideModeEnabled = 1;
     } else {
@@ -804,7 +804,7 @@ function wideMode() {
         controlsDiv.style.flexDirection = "column";
         controlsDiv.style.alignItems = "center";
         document.body.style.maxWidth = "500px";
-        [...document.getElementsByClassName("tc_categorySection")].forEach(x => x.style.gridColumn = "1 / span 2")
+        [...document.getElementsByClassName("tc_categorySection")].forEach((x) => (x.style.gridColumn = "1 / span 2"));
         window.history.replaceState(null, null, "?wide=0");
         isWideModeEnabled = 0;
     }
@@ -1163,6 +1163,11 @@ function keyHandler(e) {
             highlightStep(-1);
             modalToast("Jump to start");
             break;
+        case "j":
+            e.preventDefault();
+            enableJankyFrozenFirstCol();
+            modalToast("Jank mode enabled");
+            break;
         case "Backspace":
             e.preventDefault();
             deleteColAtCurrentPos();
@@ -1494,4 +1499,15 @@ function playTrackByName(inputTrackName) {
     document.querySelectorAll("#trackSelection option").forEach((x) => (x.selected = x.value == inputTrackName));
     loadTrack(tracks[inputTrackName]);
     startAutoplay();
+}
+
+function enableJankyFrozenFirstCol() {
+    var gridContainerElm = document.getElementById("gridContainer");
+
+    gridContainerElm.addEventListener("scroll", (event) => {
+        var left = document.getElementById("gridContainer").scrollLeft;
+        var targetElms = [...document.getElementsByClassName("step_-1")];
+        targetElms.forEach((x) => (x.style.position = "relative"));
+        targetElms.forEach((x) => (x.style.left = `${left}px`));
+    });
 }
