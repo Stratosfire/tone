@@ -12,51 +12,84 @@
     <script src="res/draggable.js" async></script>
     <link rel="stylesheet" href="res/main.css">
     <style>
-        #fancyTrackTable,
-        #fancyTrackTable td,
-        #fancyTrackTable th,
-        #fancyTrackTable tr {
-            border-collapse: collapse;
-            border: 1px solid white;
-            border-radius: 1em;
-        }
-
-        #fancyTrackTable td {
-            padding: 5px;
-        }
-
-        #fancyTrackTable th {
-            padding: 2px;
-            text-align: left;
-        }
-
-        #fancyTrackTable th::first-letter {
+        /* #fancyTrackTable th::first-letter {
             text-transform: capitalize;
-        }
+        } */
 
-        #fancyTrackTable img {
+        .tc_faviconContainer img {
             width: 32px;
             height: 32px;
             image-rendering: pixelated;
         }
 
-        #fancyTrackTable td span.uncategorised {
-            font-style: italic;
-            color: grey;
+        #trackCardContainer {
+            display: grid;
+            grid: auto-flow / 1fr 1fr;
+            gap: 10px;
         }
 
-        #fancyTrackTable tr:nth-child(even) {
-            background: rgb(240, 240, 240);
-        }
-
-        #fancyTrackTable tr td:nth-child(2) {
-            font-weight: bold;
-        }
-        #fancyTrackTable tr:hover {
-            background: var(--doubleNote);
+        .trackCard {
+            padding: 10px;
+            display: grid;
+            grid: auto-flow / 32px 1fr;
+            gap: 0px 10px;
+            font-size: smaller;
+            background: rgb(242, 245, 255);
+            color: black;
+            box-shadow: 2px 2px 4px #80808080, -2px -2px 4px #ffffff6b;
+            border-radius: 0.4em;
+            border: 1px solid rgb(237, 237, 237);
             cursor: pointer;
         }
 
+        .trackCard:hover {
+            background: white;
+        }
+
+        .trackCard>div {
+            grid-column: 2;
+            height: 1em;
+        }
+
+        .trackCard>div.tc_faviconContainer {
+            grid-column: 1;
+        }
+
+        .trackCard .tc_trackTitle {
+            font-weight: bold;
+            font-size: medium;
+        }
+
+        #trackCardContainer>div.tc_categorySection {
+            grid-column: 1 / span 2;
+            background: black;
+            color: white;
+            border-radius: 0.4em;
+            padding: 10px;
+            text-transform: capitalize;
+            margin-top: 20px;
+        }
+
+        #trackCardContainer>div.tc_categorySection:first-of-type {
+            margin-top: 0px;
+        }
+
+        .tc_noteCount::before {
+            content: "♪×";
+        }
+
+        .tc_bpm::after {
+            content: "bpm"
+        }
+
+        .tc_actualDuration::before {
+            content: "Duration: ";
+        }
+
+        .tc_category {
+            font-style: italic;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 
@@ -259,12 +292,43 @@
 
         window.addEventListener("keydown", keyHandler)
 
-        // initFancyTrackSelection()
+        initFancyTrackSelection()
     }
 
     function initFancyTrackSelection() {
         var fancyData = []
         var metadataFields = new Set()
+        var categories = new Set()
+
+        // add calculated metadata fields
+        for (var t in tracks) {
+            var data = tracks[t]
+
+            // init metadata if needs be
+            if (!Object.keys(data).includes("metadata")) {
+                data["metadata"] = { "category": "uncategorised" }
+            }
+
+            // noteCount
+            var noteCount = data["notes"].length
+            if (Object.keys(data).includes("doublenotes")) {
+                noteCount + data["doublenotes"].length
+            }
+            if (Object.keys(data).includes("halfnotes")) {
+                noteCount + data["halfnotes"].length
+            }
+
+            data.metadata.noteCount = noteCount
+
+            // bpm
+            var bpm = Math.round(60 / data["duration"])
+            data.metadata.bpm = bpm
+
+            // actual duration
+            var actualDuration = Math.round(data["duration"] * data["steps"]) // seconds
+            actualDuration = actualDuration < 60 ? `${actualDuration}s` : secondsToMins(actualDuration)
+            data.metadata.actualDuration = actualDuration
+        }
 
         // get all the metadata fields
         for (var t in tracks) {
@@ -274,11 +338,19 @@
             }
         }
 
-        metadataFields = Array.from(metadataFields)
+        metadataFields = ["faviconContainer", "trackTitle", ...Array.from(metadataFields)]
+        // get all categories
+        for (var t in tracks) {
+            var data = tracks[t]
+            if (Object.keys(data).includes("metadata")) {
+                categories.add(data.metadata.category)
+            }
+        }
 
-        fancyData.push([, "Title", ...metadataFields])
+        // delete uncategorised and re-add it to the end of a sorted array
+        categories.delete("uncategorised")
+        categories = [...Array.from(categories).toSorted(), "uncategorised"]
 
-        // add metadata to list of lists
         for (var t in tracks) {
             var data = tracks[t]
             var tempArray = []
@@ -297,14 +369,14 @@
 
             // metadata
             if (Object.keys(data).includes("metadata")) {
-                for (var i = 0; i < metadataFields.length; i++) {
+                for (var i = 2; i < metadataFields.length; i++) {
                     var tempMeta = data["metadata"][metadataFields[i]]
-                    tempArray.push(tempMeta ? tempMeta : "-")
+                    tempArray.push(tempMeta ? tempMeta : "")
                 }
             }
             else {
-                for (var i = 0; i < metadataFields.length; i++) {
-                    tempArray.push(metadataFields[i] == "category" ? "<span class='uncategorised'>uncategorised</span>" : "-")
+                for (var i = 2; i < metadataFields.length; i++) {
+                    tempArray.push(metadataFields[i] == "category" ? "uncategorised" : "")
                 }
             }
 
@@ -312,22 +384,38 @@
         }
 
         // put all the fancy data into a table
-        var fancyTrackTable = document.createElement("table")
-        var headerRow = document.createElement("tr")
-        fancyTrackTable.id = "fancyTrackTable"
-        headerRow.innerHTML = "<th>" + fancyData[0].join("</th><th>") + "</th>"
-        fancyTrackTable.appendChild(headerRow)
-        for (var i = 1; i < fancyData.length; i++) {
-            var tempRow = document.createElement("tr")
-            tempRow.innerHTML = "<td>" + fancyData[i].join("</td><td>") + "</td>"
-            fancyTrackTable.appendChild(tempRow)
+        var trackCardContainerElm = document.createElement("div")
+        trackCardContainerElm.id = "trackCardContainer"
+
+        var trackCardsByCategory = {}
+        categories.forEach(x => trackCardsByCategory[x] = []) // init
+
+        for (var i = 0; i < fancyData.length; i++) {
+            var trackCardElm = document.createElement("div")
+            trackCardElm.classList.add("trackCard")
+            trackCardElm.innerHTML = fancyData[i].map((x, i) => [x, `<div class="tc_${metadataFields[i]}">${x}</div>`]).filter(x => x[0].toString().length).map(x => x[1]).join("")
+            trackCardsByCategory[fancyData[i][2]].push(trackCardElm)
+        }
+
+        for (var i = 0; i < categories.length; i++) {
+            var sectionHeaderElm = document.createElement("div")
+            sectionHeaderElm.classList.add("tc_categorySection")
+            sectionHeaderElm.innerHTML = categories[i]
+            trackCardContainerElm.appendChild(sectionHeaderElm)
+            trackCardsByCategory[categories[i]].forEach(x => trackCardContainerElm.appendChild(x))
         }
 
         // put the fancy table in a card and append
         var newCard = document.createElement("div")
         newCard.classList.add("card")
-        newCard.appendChild(fancyTrackTable)
+        newCard.appendChild(trackCardContainerElm)
         document.body.appendChild(newCard)
+    }
+
+    function secondsToMins(inputSeconds) {
+        var minutes = Math.floor(inputSeconds / 60)
+        var seconds = inputSeconds % 60
+        return `${minutes}m ${seconds}s`
     }
 
     // globals
