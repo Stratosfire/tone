@@ -298,6 +298,15 @@
         var metadataFields = new Set()
         var categories = new Set()
 
+        // sort tracks by tracknames
+        tracks = Object.keys(tracks).sort().reduce(
+            (obj, key) => {
+                obj[key] = tracks[key];
+                return obj;
+            },
+            {}
+        );
+
         // add calculated metadata fields
         for (var t in tracks) {
             var data = tracks[t]
@@ -393,7 +402,7 @@
             trackCardElm.classList.add("trackCard")
             trackCardElm.innerHTML = fancyData[i].map((x, i) => [x, `<div class="tc_${metadataFields[i]}">${x}</div>`]).filter(x => x[0].toString().length).map(x => x[1]).join("")
             trackCardElm.dataset["trackName"] = fancyData[i][1]
-            trackCardElm.onclick = function(){playTrackByName(this.dataset.trackName)}
+            trackCardElm.onclick = function () { playTrackByName(this.dataset.trackName) }
             trackCardsByCategory[fancyData[i][2]].push(trackCardElm)
         }
 
@@ -419,7 +428,7 @@
         return `${minutes}m ${seconds}s`
     }
 
-    function playTrackByName(inputTrackName){
+    function playTrackByName(inputTrackName) {
         initAudioContext()
         highlightStep(-1)
         document.querySelectorAll("#trackSelection option").forEach(x => x.selected = x.value == inputTrackName)
