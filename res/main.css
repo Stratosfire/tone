@@ -421,11 +421,16 @@ input {
 
 .trackCard > div {
     grid-column: 2;
-    height: 1em;
+    min-height: 1em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .trackCard > div.tc_faviconContainer {
     grid-column: 1;
+    height: 1em;
+    overflow: unset;
 }
 
 .trackCard .tc_trackTitle {

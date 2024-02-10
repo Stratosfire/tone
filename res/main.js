@@ -796,6 +796,7 @@ function wideMode() {
         controlsDiv.style.flexDirection = "row";
         controlsDiv.style.alignItems = "center";
         document.body.style.maxWidth = "calc(100vw - 30px)";
+        [...document.getElementsByClassName("tc_categorySection")].forEach(x => x.style.gridColumn = "1 / span 4")
         window.history.replaceState(null, null, "?wide=1");
         isWideModeEnabled = 1;
     } else {
@@ -803,6 +804,7 @@ function wideMode() {
         controlsDiv.style.flexDirection = "column";
         controlsDiv.style.alignItems = "center";
         document.body.style.maxWidth = "500px";
+        [...document.getElementsByClassName("tc_categorySection")].forEach(x => x.style.gridColumn = "1 / span 2")
         window.history.replaceState(null, null, "?wide=0");
         isWideModeEnabled = 0;
     }
