@@ -521,7 +521,7 @@ function stopAutoplay() {
 
 function trackSelectorGenerator() {
     var outhtml =
-        "<select onchange='loadTrack(tracks[this.value])' id='trackSelection'><option disabled selected>Select a track</option>";
+        "<select onchange='highlightStep(-1); loadTrack(tracks[this.value])' id='trackSelection'><option disabled selected>Select a track</option>";
     var caArray = Object.keys(tracks).sort();
 
     for (var ca_idx in caArray) {

@@ -12,10 +12,6 @@
     <script src="res/draggable.js" async></script>
     <link rel="stylesheet" href="res/main.css">
     <style>
-        /* #fancyTrackTable th::first-letter {
-            text-transform: capitalize;
-        } */
-
         .tc_faviconContainer img {
             width: 32px;
             height: 32px;
@@ -24,7 +20,7 @@
 
         #trackCardContainer {
             display: grid;
-            grid: auto-flow / 1fr 1fr;
+            grid-auto-columns: minmax(0, 1fr);
             gap: 10px;
         }
 
@@ -34,8 +30,6 @@
             grid: auto-flow / 32px 1fr;
             gap: 0px 10px;
             font-size: smaller;
-            background: rgb(242, 245, 255);
-            color: black;
             box-shadow: 2px 2px 4px #80808080, -2px -2px 4px #ffffff6b;
             border-radius: 0.4em;
             border: 1px solid rgb(237, 237, 237);
@@ -43,7 +37,11 @@
         }
 
         .trackCard:hover {
-            background: white;
+            background: rgb(242, 245, 255);
+        }
+
+        .trackCard:active {
+            background: rgb(192, 192, 192);
         }
 
         .trackCard>div {
@@ -62,7 +60,7 @@
 
         #trackCardContainer>div.tc_categorySection {
             grid-column: 1 / span 2;
-            background: black;
+            background: #5986d9;
             color: white;
             border-radius: 0.4em;
             padding: 10px;
@@ -394,6 +392,8 @@
             var trackCardElm = document.createElement("div")
             trackCardElm.classList.add("trackCard")
             trackCardElm.innerHTML = fancyData[i].map((x, i) => [x, `<div class="tc_${metadataFields[i]}">${x}</div>`]).filter(x => x[0].toString().length).map(x => x[1]).join("")
+            trackCardElm.dataset["trackName"] = fancyData[i][1]
+            trackCardElm.onclick = function(){playTrackByName(this.dataset.trackName)}
             trackCardsByCategory[fancyData[i][2]].push(trackCardElm)
         }
 
@@ -402,6 +402,7 @@
             sectionHeaderElm.classList.add("tc_categorySection")
             sectionHeaderElm.innerHTML = categories[i]
             trackCardContainerElm.appendChild(sectionHeaderElm)
+
             trackCardsByCategory[categories[i]].forEach(x => trackCardContainerElm.appendChild(x))
         }
 
@@ -416,6 +417,14 @@
         var minutes = Math.floor(inputSeconds / 60)
         var seconds = inputSeconds % 60
         return `${minutes}m ${seconds}s`
+    }
+
+    function playTrackByName(inputTrackName){
+        initAudioContext()
+        highlightStep(-1)
+        document.querySelectorAll("#trackSelection option").forEach(x => x.selected = x.value == inputTrackName)
+        loadTrack(tracks[inputTrackName])
+        startAutoplay()
     }
 
     // globals
