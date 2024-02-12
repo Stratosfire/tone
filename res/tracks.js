@@ -716,7 +716,7 @@ var tracks = {
         "duration":0.1875,
         "waveform":"square",
         "octaves":7,
-        "startOctave":1
+        "startOctave":1,
         "metadata": {
             "category": "J-pop"
         }
