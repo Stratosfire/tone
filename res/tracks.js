@@ -730,5 +730,15 @@ var tracks = {
         "waveform":"square",
         "octaves":7,
         "startOctave":1
+    },
+    "433": {
+        "notes":[],
+        "doublenotes":[],
+        "halfnotes":[],
+        "steps":273,
+        "duration":1,
+        "waveform":"sine",
+        "octaves":4,
+        "startOctave":2
     }
 }
