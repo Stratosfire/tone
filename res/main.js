@@ -1374,10 +1374,10 @@ function initFancyTrackSelection() {
         // noteCount
         var noteCount = data["notes"].length;
         if (Object.keys(data).includes("doublenotes")) {
-            noteCount + data["doublenotes"].length;
+            noteCount += data["doublenotes"].length;
         }
         if (Object.keys(data).includes("halfnotes")) {
-            noteCount + data["halfnotes"].length;
+            noteCount += [...data["halfnotes"]].map(x => x[2] == "11" ? 2 : 1).reduce((a,b) => a+b, 0)
         }
 
         data.metadata.noteCount = noteCount;
