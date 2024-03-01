@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 import pandas as pd
 import argparse
+import math
+
+pd.options.mode.copy_on_write = True
 
 def noteToMidiNumber(inputNote):
     octave = int(inputNote[-1:])
@@ -122,7 +125,7 @@ def generateMessagesDataframe(inputTrackData):
         off_df
     ], ignore_index=True).sort_values("absolute_time")
 
-    messages_df["absolute_time"] = (messages_df["absolute_time"] * 20).astype(int)
+    messages_df["absolute_time"] = (messages_df["absolute_time"] * 1000).astype(int)
     messages_df["relative_time"] = messages_df["absolute_time"].diff()
     messages_df = messages_df.fillna(0)
 
@@ -141,7 +144,7 @@ def trackToMidi(inputTrackData):
     newMidi.tracks.append(track)
 
     ## set tempo
-    track.append(MetaMessage('set_tempo', tempo=10000000, time=0))
+    track.append(MetaMessage('set_tempo', tempo=math.ceil(500000 * inputTrackData["duration"]), time=0))
     
     ## generate note on/off messages
     messages_df = generateMessagesDataframe(inputTrackData)
