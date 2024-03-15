@@ -6,7 +6,7 @@ A silly single-serving website for playing about with the WebAudio API in JavaSc
 
 ## How do I use it?
 
-Go to [ashe.org.uk/tone](ashe.org.uk/tone) and figure it out (it's easy I promise!)
+Go to [ashe.org.uk/tone](https://ashe.org.uk/tone) and figure it out (it's easy I promise!)
 
 ## Is there a way to export a track?
 
