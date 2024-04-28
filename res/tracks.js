@@ -20,7 +20,7 @@ var tracks = {
         "waveform":"sine",
         "octaves":2,
         "startOctave":3,
-        "favicon": "http://aashe.org.uk/grid?pattern=1&width=1&height=1&secondary=0000ff",
+        "favicon": "http://ashe.org.uk/grid?pattern=1&width=1&height=1&secondary=0000ff",
         "metadata": {
             "category": "misc"
         }
