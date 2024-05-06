@@ -309,7 +309,7 @@ function getFrequencyFromNoteName(noteName) {
         `;
     var note = noteName.slice(0, noteName.length - 1).replace("#", "♯");
     var octave = parseInt(noteName.slice(noteName.length - 1));
-    var noteIdx = chromaticScale.indexOf(note);
+    var noteIdx = chromaticScale.indexOf(note) + 3;
 
     var noteValueRelativeToA4 = noteIdx + 12 * (octave - 4);
     var noteFrequency = 2 ** (noteValueRelativeToA4 / 12) * 440;
@@ -921,9 +921,10 @@ function transposeScore(semitones) {
 
 function noteToMidiNumber(inputNote) {
     var octave = parseInt(inputNote.slice(inputNote.length - 1));
-    var note = inputNote.slice(0, inputNote.length - 1);
+    var note = inputNote.slice(0, 1);
+    var isSharp = +inputNote.replace("#", "♯").includes("♯")
 
-    return 12 * octave + chromaticScale.indexOf(note) + 21;
+    return 12 * octave + chromaticScale.indexOf(note) + 3 + 9 + isSharp;
 }
 
 function flipScore() {
@@ -1326,9 +1327,9 @@ function gridUrlToDataUrl(patternUrl, alphaUrl) {
     // if not given, set alpha to 255 for all pixels
     var alphaArray = paramsAlpha
         ? paramsAlpha
-              .get("pattern")
-              .split("")
-              .map((x) => (parseInt(x) ? 255 : 0))
+                .get("pattern")
+                .split("")
+                .map((x) => (parseInt(x) ? 255 : 0))
         : Array(width * height).fill(255);
 
     // write pixels to object
