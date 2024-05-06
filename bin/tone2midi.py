@@ -10,10 +10,11 @@ pd.options.mode.copy_on_write = True
 
 def noteToMidiNumber(inputNote):
     octave = int(inputNote[-1:])
-    note = inputNote[:-1]
-    chromaticScale = ["A", "A♯", "B", "C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯"]
+    note = inputNote[0]
+    isSharp = int("♯" in inputNote.replace("#", "♯"))
+    chromaticScale = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
     
-    return (12 * octave) + chromaticScale.index(note) + 21
+    return (12 * octave) + chromaticScale.index(note) + 3 + 9 + isSharp
 
 def parseNoteDataToDataFrame(inputNoteData):
     return (pd.DataFrame(inputNoteData)
@@ -130,7 +131,10 @@ def generateMessagesDataframe(inputTrackData):
     messages_df = messages_df.fillna(0)
 
     messages_df["message"] = messages_df.apply(lambda x: Message(
-            x.state, note=noteToMidiNumber(x.note), velocity=127, time=int(x.relative_time)
+            x.state,
+            note=noteToMidiNumber(x.note)+12, ## there's an off-by-twelve bug in here somewhere that this fixes
+            velocity=127,
+            time=int(x.relative_time)
         ),
         axis=1,
     )
