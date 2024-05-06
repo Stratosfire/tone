@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix octaves</title>
+    <style>
+        html {
+            font-family: sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            display: block;
+            height: 200px;
+            margin: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Fix octaves</h1>
+    <p>Turns out musical octaves index from C, rather than from A.</p>
+    <h2>Input</h2>
+    <textarea id="input"></textarea>
+    <div><button onclick="doFix()">Fix it</button></div>
+    <h2>Output</h2>
+    <textarea id="output"></textarea>
+</body>
+<script>
+    `use strict`
+
+    function fixOctave(inputNote, inputOctave) {
+        if (["A", "A♯", "B"].includes(inputNote)) {
+            return inputOctave - 1
+        }
+        else {
+            return inputOctave
+        }
+    }
+
+    function doFix() {
+        var inData = JSON.parse(document.getElementById("input").value)
+        var tempNotes = inData["notes"]
+        var tempDoubleNotes = inData["doublenotes"] || []
+        var tempHalfNotes = inData["halfnotes"] || []
+
+        tempNotes = tempNotes.map(x => {
+            var inputNote = x[0]
+            var duration = x[1]
+            var note = inputNote.slice(0, inputNote.length - 1)
+            var octave = parseInt(inputNote.slice(inputNote.length - 1))
+            return [`${note}${fixOctave(note, octave)}`, duration]
+        })
+
+        tempDoubleNotes = tempDoubleNotes.map(x => {
+            var inputNote = x[0]
+            var duration = x[1]
+            var note = inputNote.slice(0, inputNote.length - 1)
+            var octave = parseInt(inputNote.slice(inputNote.length - 1))
+            return [`${note}${fixOctave(note, octave)}`, duration]
+        })
+
+        tempHalfNotes = tempHalfNotes.map(x => {
+            var inputNote = x[0]
+            var duration = x[1]
+            var pattern = x[2]
+            var note = inputNote.slice(0, inputNote.length - 1)
+            var octave = parseInt(inputNote.slice(inputNote.length - 1))
+            return [`${note}${fixOctave(note, octave)}`, duration, pattern]
+        })
+
+        if (tempNotes.length) {
+            inData["notes"] = tempNotes
+        }
+
+        if (tempDoubleNotes.length) {
+            inData["doublenotes"] = tempDoubleNotes
+        }
+
+        if (tempHalfNotes.length) {
+            inData["halfnotes"] = tempHalfNotes
+        }
+
+        // get the highest and lowest octaves
+        var maxOct = Math.max(...[...tempNotes, ...tempDoubleNotes, ...tempHalfNotes].map(
+            x => parseInt(x[0].slice(x[0].length - 1))
+        ))
+        var minOct = Math.min(...[...tempNotes, ...tempDoubleNotes, ...tempHalfNotes].map(
+            x => parseInt(x[0].slice(x[0].length - 1))
+        ))
+        var deltaOct = maxOct - minOct
+        // fix octave metadata
+        inData["octaves"] = deltaOct + 1
+        inData["startOctave"] = minOct
+
+        document.getElementById("output").value = JSON.stringify(inData)
+    }
+</script>
+
+</html>
