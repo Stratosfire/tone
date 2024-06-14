@@ -1270,5 +1270,18 @@ var tracks = {
         "metadata": {
             "category": "Videogame"
         }
+    },
+    "totaka": {
+        "notes":[["C4",15],["G3",9],["G3",18],["G3",24],["G3",27],["G3",40],["F♯3",29],["E3",3],["E3",12],["D♯3",30],["D3",5],["D3",36],["C3",0],["C3",6],["C3",43]],
+        "doublenotes":[],
+        "halfnotes":[["G♯3",26,"01"],["G3",26,"10"],["D3",2,"01"],["C3",2,"10"]],
+        "steps":48,
+        "duration":0.25,
+        "waveform":"square",
+        "octaves":2,
+        "startOctave":3,
+        "metadata": {
+            "category": "Videogame"
+        }
     }
 }
