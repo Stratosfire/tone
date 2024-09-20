@@ -4,7 +4,7 @@ function toggleNoteNameColour(inputElm){
     if (inputElm){
         var noteName = inputElm.innerText
         if (noteNamesHighlightedSet.has(noteName)){
-            noteNamesHighlightedSet.remove(noteName)
+            noteNamesHighlightedSet.delete(noteName)
         }
         else{
             noteNamesHighlightedSet.add(noteName)
