@@ -1,5 +1,21 @@
 "use strict";
 
+function toggleNoteNameColour(inputElm){
+    if (inputElm){
+        var noteName = inputElm.innerText
+        if (noteNamesHighlightedSet.has(noteName)){
+            noteNamesHighlightedSet.remove(noteName)
+        }
+        else{
+            noteNamesHighlightedSet.add(noteName)
+        }
+    }
+
+    [...noteNamesHighlightedSet].forEach(x => {
+        document.querySelector(`[data-note=${x}].step_-1`).classList.add("noteNameHighlight")
+    })
+}
+
 function stepChange(steps, noReload) {
     // var theGrid = document.getElementById("theGrid")
     var stepSpinner = document.getElementById("stepSpinner");
@@ -20,7 +36,12 @@ function stepChange(steps, noReload) {
             if (!j) {
                 var note = chromaticScale[12 - ((i % 12) + 1)];
                 var octave = startOctave + numberOfOctaves - (1 + Math.floor(i / 12));
-                cellHTML = `<td class='step_${j - 1}' data-note="${note}${octave}">${note}${octave}</td>`;
+                if (!j){
+                    cellHTML = `<td class='step_${j - 1}' onclick="toggleNoteNameColour(this)" data-note="${note}${octave}">${note}${octave}</td>`;
+                }
+                else{
+                    cellHTML = `<td class='step_${j - 1}' data-note="${note}${octave}">${note}${octave}</td>`;
+                }
             } else {
                 cellHTML = `<td class='step_${j - 1}'></td>`;
             }
@@ -31,6 +52,7 @@ function stepChange(steps, noReload) {
     }
     newGridHTML.push("</tbody></table>");
     theGrid.innerHTML = newGridHTML.join("\n");
+    toggleNoteNameColour()
     stepSpinner.value = steps;
 
     cycleNoteDuration(true);

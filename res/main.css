@@ -468,3 +468,7 @@ input {
     font-style: italic;
     margin-bottom: 5px;
 }
+
+#theGrid td.noteNameHighlight{
+    background: salmon !important;
+}
