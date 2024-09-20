@@ -9,7 +9,9 @@ function toggleNoteNameColour(inputElm){
         else{
             noteNamesHighlightedSet.add(noteName)
         }
-    }
+    };
+
+    [...document.getElementsByClassName("noteNameHighlight")].forEach(x => {x.classList.remove("noteNameHighlight")});
 
     [...noteNamesHighlightedSet].forEach(x => {
         document.querySelector(`[data-note=${x}].step_-1`).classList.add("noteNameHighlight")
